@@ -1,6 +1,5 @@
 import { Component } from '@angular/core';
 import { RouterModule } from '@angular/router';
-import { CommonModule } from '@angular/common'; // ✅ Importar CommonModule
 import { FontAwesomeModule, FaIconLibrary } from '@fortawesome/angular-fontawesome';
 import { faBriefcase, faHandsHelping, faCheckCircle } from '@fortawesome/free-solid-svg-icons';
 
@@ -15,7 +14,7 @@ interface Card {
   standalone: true,
   templateUrl: './inicio.component.html',
   styleUrls: ['./inicio.component.css'],
-  imports: [RouterModule, CommonModule, FontAwesomeModule] // ✅ Añadir CommonModule aquí
+  imports: [RouterModule, FontAwesomeModule]
 })
 export class InicioComponent {
  cards: Card[] = [

@@ -8,8 +8,10 @@
         class="form-select w-auto px-3 py-2 shadow-sm border-secondary rounded-3"
         [(ngModel)]="sedeSeleccionada"
         (change)="cargarCamaras()"
-      >
-        <option *ngFor="let sede of sedes" [value]="sede.id">{{ sede.nombre }}</option>
+        >
+        @for (sede of sedes; track sede) {
+          <option [value]="sede.id">{{ sede.nombre }}</option>
+        }
       </select>
     </div>
 
@@ -31,13 +33,15 @@
   </div>
 
   <!-- Sin cámaras -->
-  <div *ngIf="camaras.length === 0" class="alert alert-warning text-center rounded-3">
-    📭 No hay cámaras registradas en esta sede.
-  </div>
+  @if (camaras.length === 0) {
+    <div class="alert alert-warning text-center rounded-3">
+      📭 No hay cámaras registradas en esta sede.
+    </div>
+  }
 
   <!-- Cámaras -->
   <div class="row g-4">
-    <ng-container *ngFor="let cam of camaras; let i = index">
+    @for (cam of camaras; track cam; let i = $index) {
       <div [ngClass]="vistaCompacta ? 'col-6 col-md-3' : 'col-12 col-sm-6 col-md-4'">
         <div
           [routerLink]="cam.estado === 'enLinea' ? ['../camara', cam.id] : null"
@@ -47,34 +51,34 @@
             'bg-white border border-1 border-secondary text-muted opacity-75': cam.estado !== 'enLinea',
             'cursor-pointer': cam.estado === 'enLinea'
           }"
-        >
+          >
           <!-- Vista previa -->
           <div class="position-relative rounded-top" style="height: 180px; overflow: hidden;">
-            <div
-              *ngIf="imagenCargando[cam.id]"
-              class="position-absolute top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center bg-light"
-            >
-              <div class="spinner-border text-primary" role="status"></div>
-            </div>
-
-            <img
-              *ngIf="!imagenError[cam.id]"
-              [src]="getSnapshotUrl(cam.id)"
-              alt="Vista previa cámara"
-              class="w-100 h-100 object-fit-cover"
-              (load)="imagenCargando[cam.id] = false"
-              (error)="imagenCargando[cam.id] = false; imagenError[cam.id] = true"
-            />
-
-            <div
-              *ngIf="imagenError[cam.id]"
-              class="d-flex justify-content-center align-items-center bg-secondary text-white"
-              style="height: 100%; width: 100%; font-size: 14px;"
-            >
-              ❌ Sin vista previa
-            </div>
+            @if (imagenCargando[cam.id]) {
+              <div
+                class="position-absolute top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center bg-light"
+                >
+                <div class="spinner-border text-primary" role="status"></div>
+              </div>
+            }
+            @if (!imagenError[cam.id]) {
+              <img
+                [src]="getSnapshotUrl(cam.id)"
+                alt="Vista previa cámara"
+                class="w-100 h-100 object-fit-cover"
+                (load)="imagenCargando[cam.id] = false"
+                (error)="imagenCargando[cam.id] = false; imagenError[cam.id] = true"
+                />
+            }
+            @if (imagenError[cam.id]) {
+              <div
+                class="d-flex justify-content-center align-items-center bg-secondary text-white"
+                style="height: 100%; width: 100%; font-size: 14px;"
+                >
+                ❌ Sin vista previa
+              </div>
+            }
           </div>
-
           <!-- Contenido tarjeta -->
           <div class="card-body px-3 py-3">
             <div class="d-flex justify-content-between align-items-center mb-1">
@@ -86,38 +90,39 @@
                 }"
               ></span>
             </div>
-
             <span
               class="badge rounded-pill px-3 py-1 mb-3"
               [ngClass]="{
                 'bg-success text-white': cam.estado === 'enLinea',
                 'bg-secondary text-light': cam.estado !== 'enLinea'
               }"
-            >
+              >
               {{ cam.estado === 'enLinea' ? 'En línea' : 'Fuera de línea' }}
             </span>
-
             <!-- Normal -->
-            <div *ngIf="!cam.editando" (click)="$event.stopPropagation()">
-              <p class="card-text small text-dark mb-2">
-                <strong>Ubicación:</strong> {{ cam.ubicacion }}
-              </p>
-              <button class="btn btn-sm btn-outline-primary" (click)="editarUbicacion(i, $event)">
-                <i class="bi bi-pencil-square me-1"></i> Editar
-              </button>
-            </div>
-
+            @if (!cam.editando) {
+              <div (click)="$event.stopPropagation()">
+                <p class="card-text small text-dark mb-2">
+                  <strong>Ubicación:</strong> {{ cam.ubicacion }}
+                </p>
+                <button class="btn btn-sm btn-outline-primary" (click)="editarUbicacion(i, $event)">
+                  <i class="bi bi-pencil-square me-1"></i> Editar
+                </button>
+              </div>
+            }
             <!-- Edición -->
-            <div *ngIf="cam.editando" (click)="$event.stopPropagation()">
-              <label class="form-label small mb-1">Nueva ubicación</label>
-              <input type="text" class="form-control form-control-sm" [(ngModel)]="cam.ubicacion" />
-              <button class="btn btn-sm btn-success mt-2" (click)="guardarUbicacion(i, $event)">
-                Guardar
-              </button>
-            </div>
+            @if (cam.editando) {
+              <div (click)="$event.stopPropagation()">
+                <label class="form-label small mb-1">Nueva ubicación</label>
+                <input type="text" class="form-control form-control-sm" [(ngModel)]="cam.ubicacion" />
+                <button class="btn btn-sm btn-success mt-2" (click)="guardarUbicacion(i, $event)">
+                  Guardar
+                </button>
+              </div>
+            }
           </div>
         </div>
       </div>
-    </ng-container>
+    }
   </div>
 </div>

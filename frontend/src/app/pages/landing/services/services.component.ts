@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { RouterModule } from '@angular/router';
 import { FontAwesomeModule, FaIconLibrary } from '@fortawesome/angular-fontawesome';
 
@@ -30,10 +30,9 @@ import {
   selector: 'app-services',
   standalone: true,
   imports: [
-    CommonModule,
     RouterModule,
     FontAwesomeModule
-  ],
+],
   templateUrl: './services.component.html',
   styleUrls: ['./services.component.css']
 })

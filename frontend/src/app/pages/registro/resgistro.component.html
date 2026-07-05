@@ -1,15 +1,16 @@
 <div class="key-wrapper">
   <!-- Fondo animado -->
   <div class="animated-background">
-    <i
-      *ngFor="let icon of iconos"
-      class="fas floating-icon"
-      [ngClass]="icon.class"
-      [style.left.%]="icon.left"
-      [style.animationDuration.s]="icon.duration"
-      [style.animationDelay.s]="icon.delay"
-      [style.fontSize.px]="icon.size"
-    ></i>
+    @for (icon of iconos; track icon) {
+      <i
+        class="fas floating-icon"
+        [ngClass]="icon.class"
+        [style.left.%]="icon.left"
+        [style.animationDuration.s]="icon.duration"
+        [style.animationDelay.s]="icon.delay"
+        [style.fontSize.px]="icon.size"
+      ></i>
+    }
   </div>
 
   <!-- Tarjeta de registro -->
@@ -29,21 +30,21 @@
         [(ngModel)]="form.email"
         name="email"
         required
-      />
+        />
     </div>
 
     <!-- Número de celular -->
-<div class="input-icon-wrapper mb-3">
-  <i class="fas fa-phone input-icon"></i>
-  <input
-    type="tel"
-    class="key-input"
-    placeholder="Número de celular"
-    [(ngModel)]="form.phone"
-    name="phone"
-    required
-  />
-</div>
+    <div class="input-icon-wrapper mb-3">
+      <i class="fas fa-phone input-icon"></i>
+      <input
+        type="tel"
+        class="key-input"
+        placeholder="Número de celular"
+        [(ngModel)]="form.phone"
+        name="phone"
+        required
+        />
+    </div>
 
 
     <!-- Contraseña -->
@@ -56,7 +57,7 @@
         [(ngModel)]="form.password"
         name="password"
         required
-      />
+        />
       <i
         class="fas toggle-eye"
         [ngClass]="mostrarClave ? 'fa-eye-slash' : 'fa-eye'"
@@ -65,9 +66,11 @@
     </div>
 
     <!-- Mensaje de error o éxito -->
-    <div *ngIf="mensaje" class="error-message mt-3">
-      {{ mensaje }}
-    </div>
+    @if (mensaje) {
+      <div class="error-message mt-3">
+        {{ mensaje }}
+      </div>
+    }
 
     <!-- Botón de registro -->
     <button class="btn-ingresar mt-3" (click)="registrar()">

@@ -1,6 +1,6 @@
 import { Component, OnInit, AfterViewInit, ElementRef, ViewChild } from '@angular/core';
 
-import { CommonModule } from '@angular/common';
+
 import { RouterModule, Router } from '@angular/router';
 import { HttpClientModule, HttpClient, HttpHeaders } from '@angular/common/http';
 import { AuthService } from '../../../services/auth.service';
@@ -11,10 +11,9 @@ import { AuthService } from '../../../services/auth.service';
   templateUrl: './landing-navbar.component.html',
   styleUrls: ['./landing-navbar.component.css'],
   imports: [
-    CommonModule,
     RouterModule,
     HttpClientModule
-  ]
+]
 })
 export class LandingNavbarComponent implements OnInit, AfterViewInit {
   @ViewChild('navbar') navbar!: ElementRef;

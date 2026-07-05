@@ -42,12 +42,12 @@ Además, marque todas las herramientas adicionales sugeridas en la sección dere
 
 ![Herramientas adicionales sugeridas, marcar todo esto](images/vs-build-tools-install.png)
 
-### 1.4. Node.js 18.20.5
+### 1.4. Node.js 22.22.3 LTS
 
 #### Opción A: Instalación Directa (Si no tienes Node.js instalado)
 
 - **Descarga oficial:** https://nodejs.org/en/download/
-- **Descarga directa:** [Node.js 18.20.5](https://nodejs.org/dist/v18.20.5/node-v18.20.5-x64.msi)
+- **Descarga directa:** [Node.js 22.22.3](https://nodejs.org/dist/v22.22.3/node-v22.22.3-x64.msi)
 
 Durante la instalación, asegúrese de que todas las opciones estén marcadas, incluyendo npm package manager.
 
@@ -57,15 +57,15 @@ Si ya tienes otra versión de Node.js instalada, se recomienda usar **NVM para W
 
 1. **Descargar NVM para Windows:**
    - Repositorio oficial: https://github.com/coreybutler/nvm-windows/releases
-   - Descarga: [nvm-setup.exe](https://github.com/coreybutler/nvm-windows/releases/download/1.1.12/nvm-setup.exe)
+   - Descarga: [última versión estable](https://github.com/coreybutler/nvm-windows/releases/latest)
 
-2. **Instalar Node.js 18.20.5 con NVM:**
+2. **Instalar Node.js 22.22.3 con NVM:**
    ```bash
-   # Instalar Node.js 18.20.5
-   nvm install 18.20.5
+   # Instalar Node.js 22.22.3
+   nvm install 22.22.3
    
-   # Usar Node.js 18.20.5
-   nvm use 18.20.5
+   # Usar Node.js 22.22.3
+   nvm use 22.22.3
    
    # Verificar la versión activa
    node -v
@@ -74,59 +74,34 @@ Si ya tienes otra versión de Node.js instalada, se recomienda usar **NVM para W
 3. **Verificar que npm esté instalado:**
    ```bash
    npm -v
-   # Debería mostrar: 10.8.2 (o similar)
+   # Debería mostrar: 10.9.8 (o una versión compatible posterior)
    ```
 
-### 1.5. Angular CLI 19.1.1
+### 1.5. Angular CLI 21.2
 
-#### Verificar si ya tienes Angular CLI instalado
+El proyecto incluye Angular CLI como dependencia local. No es necesario instalar ni actualizar una CLI global; `npm ci` instala la versión registrada en `package-lock.json`.
 
-```bash
-ng version
-```
-
-#### Si ya tienes Angular CLI instalado (versión diferente)
-
-**Opción 1: Desinstalar versión anterior e instalar la requerida**
-```bash
-# Desinstalar versión global anterior
-npm uninstall -g @angular/cli
-
-# Limpiar caché de npm
-npm cache clean --force
-
-# Instalar Angular CLI 19.1.1
-npm install -g @angular/cli@19.1.1
-```
-
-**Opción 2: Usar npx para ejecutar Angular sin instalación global (alternativa)**
-```bash
-# Ejecutar Angular CLI específico del proyecto
-npx @angular/cli@19.1.1 serve
-```
-
-#### Si NO tienes Angular CLI instalado
+#### Verificar la versión local
 
 ```bash
-# Instalar Angular CLI 19.1.1 globalmente
-npm install -g @angular/cli@19.1.1
+npx ng version
 ```
 
 #### Verificar versiones instaladas
 
 ```bash
-node -v     # Debe mostrar: v18.20.5
-npm -v      # Debe mostrar: 10.8.2
-ng version  # Debe mostrar: 19.1.1
+node -v      # Debe mostrar: v22.22.3
+npm -v       # Debe mostrar: 10.9.8 o compatible
+npx ng version  # Debe mostrar Angular CLI 21.2.x y Angular 21.2.x
 ```
 
 **Ejemplo de resultado esperado de `ng version`:**
 
 ```
-@angular-devkit/architect    0.1901.1 (cli-only)
-@angular-devkit/core         19.1.1 (cli-only)
-@angular-devkit/schematics   19.1.1 (cli-only)
-@schematics/angular          19.1.1 (cli-only)
+Angular CLI       : 21.2.x
+Angular           : 21.2.x
+Node.js           : 22.22.3
+Package Manager   : npm 10.9.x
 ```
 
 ---
@@ -219,13 +194,20 @@ npm start
 npm ci
 ```
 
-3. Inicia el frontend con:
+3. Inicia el frontend con la CLI local:
 
 ```bash
-ng serve
+npm start
 ```
 
 **Nota:** Las funcionalidades del frontend dependen de que el backend esté en ejecución.
+
+4. Antes de proponer cambios, valida el frontend:
+
+```bash
+npm run build
+npm test -- --watch=false --browsers=ChromeHeadless
+```
 
 ### 5.3. Ejecución de la IA
 

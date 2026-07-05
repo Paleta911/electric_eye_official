@@ -9,7 +9,7 @@
         class="form-control buscador-input ps-5"
         placeholder="Buscar por cámara o área"
         [(ngModel)]="filtroTexto"
-      />
+        />
     </div>
     <button class="btn-minimal" (click)="recargarAsistencias()">
       <i class="fas fa-sync-alt"></i> Recargar
@@ -20,31 +20,33 @@
   <div class="cartas-wrapper">
     <!-- Zona scrolleable -->
     <div class="cartas-scroll">
-      <div class="imagen-card shadow-sm" *ngFor="let item of imagenesPaginadas">
-        <div class="imagen-preview">
-          <img [src]="item.imagenUrl" alt="Captura de {{ item.camera }} - {{ item.area }}" />
-        </div>
-        <div class="info p-3">
-          <h6 class="fw-bold text-primary mb-2">{{ item.timestamp }}</h6>
-          <p class="mb-1">
-            <i class="fas fa-video me-2"></i><strong>Cámara:</strong> {{ item.camera }}
-          </p>
-          <p class="mb-2">
-            <i class="fas fa-map-marker-alt me-2"></i><strong>Área:</strong> {{ item.area }}
-          </p>
-          <div class="d-flex gap-2">
-            <button class="btn-minimal w-100" (click)="ampliarImagen(item.imagenUrl)">
-              <i class="fas fa-eye"></i> Ver
-            </button>
-            <button class="btn-minimal w-100" (click)="descargarImagen(item.imagenUrl)">
-              <i class="fas fa-download"></i> Descargar
-            </button>
-            <button class="btn-minimal w-100" (click)="eliminarAsistencia(item.imagenUrl)">
-              <i class="fas fa-trash-alt"></i> Eliminar
-            </button>
+      @for (item of imagenesPaginadas; track item) {
+        <div class="imagen-card shadow-sm">
+          <div class="imagen-preview">
+            <img [src]="item.imagenUrl" alt="Captura de {{ item.camera }} - {{ item.area }}" />
+          </div>
+          <div class="info p-3">
+            <h6 class="fw-bold text-primary mb-2">{{ item.timestamp }}</h6>
+            <p class="mb-1">
+              <i class="fas fa-video me-2"></i><strong>Cámara:</strong> {{ item.camera }}
+            </p>
+            <p class="mb-2">
+              <i class="fas fa-map-marker-alt me-2"></i><strong>Área:</strong> {{ item.area }}
+            </p>
+            <div class="d-flex gap-2">
+              <button class="btn-minimal w-100" (click)="ampliarImagen(item.imagenUrl)">
+                <i class="fas fa-eye"></i> Ver
+              </button>
+              <button class="btn-minimal w-100" (click)="descargarImagen(item.imagenUrl)">
+                <i class="fas fa-download"></i> Descargar
+              </button>
+              <button class="btn-minimal w-100" (click)="eliminarAsistencia(item.imagenUrl)">
+                <i class="fas fa-trash-alt"></i> Eliminar
+              </button>
+            </div>
           </div>
         </div>
-      </div>
+      }
     </div>
 
     <!-- Paginación fija abajo -->
@@ -60,8 +62,10 @@
   </div>
 
   <!-- Modal -->
-  <div class="modal" *ngIf="imagenAmpliada" (click)="cerrarModal()">
-    <img [src]="imagenAmpliada" alt="Vista ampliada" class="modal-img" />
-    <span class="cerrar">✖</span>
-  </div>
+  @if (imagenAmpliada) {
+    <div class="modal" (click)="cerrarModal()">
+      <img [src]="imagenAmpliada" alt="Vista ampliada" class="modal-img" />
+      <span class="cerrar">✖</span>
+    </div>
+  }
 </div>

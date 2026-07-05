@@ -1,10 +1,10 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 
 @Component({
   selector: 'app-video-modal',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   templateUrl: './video-modal.component.html',
   styleUrl: './video-modal.component.css'
 })

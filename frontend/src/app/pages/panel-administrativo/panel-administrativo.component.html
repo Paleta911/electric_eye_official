@@ -2,24 +2,34 @@
   <nav class="sidebar">
     <div class="sidebar-title">
       <button class="hamburger" (click)="toggleSidebar()">☰</button>
-      <span *ngIf="!isCollapsed">ElectricEye</span>
+      @if (!isCollapsed) {
+        <span>ElectricEye</span>
+      }
     </div>
     <ul>
       <li routerLink="/panel-usuario/mis-camaras" routerLinkActive="active">
         <i class="fas fa-video"></i>
-        <span *ngIf="!isCollapsed">Mis Cámaras</span>
+        @if (!isCollapsed) {
+          <span>Mis Cámaras</span>
+        }
       </li>
       <li routerLink="/panel-usuario/lista-asistencia" routerLinkActive="active">
         <i class="fas fa-user-check"></i>
-        <span *ngIf="!isCollapsed">Lista de Asistencia</span>
+        @if (!isCollapsed) {
+          <span>Lista de Asistencia</span>
+        }
       </li>
       <li routerLink="/panel-usuario/anomalias" routerLinkActive="active">
         <i class="fas fa-exclamation-triangle"></i>
-        <span *ngIf="!isCollapsed">Eventos</span>
+        @if (!isCollapsed) {
+          <span>Eventos</span>
+        }
       </li>
       <li routerLink="/panel-usuario/grabaciones" routerLinkActive="active">
         <i class="fas fa-file-video"></i>
-        <span *ngIf="!isCollapsed">Capturas</span>
+        @if (!isCollapsed) {
+          <span>Capturas</span>
+        }
       </li>
     </ul>
   </nav>

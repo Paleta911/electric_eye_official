@@ -1,12 +1,12 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { AsistenciaService } from '../../services/asistencia.service';
 import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-grabaciones',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [FormsModule],
   templateUrl: './grabaciones.component.html',
   styleUrls: ['./grabaciones.component.css']
 })

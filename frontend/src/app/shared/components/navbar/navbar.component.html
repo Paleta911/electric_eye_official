@@ -22,7 +22,7 @@
       class="tema-toggle"
       (click)="toggleTema()"
       [title]="modoOscuro ? 'Tema claro' : 'Tema oscuro'"
-    >
+      >
       <i class="fas" [ngClass]="modoOscuro ? 'fa-sun' : 'fa-moon'"></i>
     </div>
 
@@ -38,10 +38,12 @@
       <i class="fas fa-user-circle avatar-icon"></i>
       <i class="fas fa-chevron-down flecha"></i>
 
-      <div class="menu-usuario" *ngIf="mostrarMenuUsuario">
-        <div (click)="abrirConfiguracion()">⚙ Configuración</div>
-        <div (click)="cerrarSesion()">🔓 Cerrar sesión</div>
-      </div>
+      @if (mostrarMenuUsuario) {
+        <div class="menu-usuario">
+          <div (click)="abrirConfiguracion()">⚙ Configuración</div>
+          <div (click)="cerrarSesion()">🔓 Cerrar sesión</div>
+        </div>
+      }
     </div>
   </div>
 </header>

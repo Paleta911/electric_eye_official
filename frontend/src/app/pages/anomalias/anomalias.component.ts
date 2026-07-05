@@ -1,13 +1,11 @@
 import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 
 
 @Component({
   selector: 'app-anomalias',
   standalone: true,
-  imports: [
-    CommonModule,
-  ],
+  imports: [],
   templateUrl: './anomalias.component.html',
   styleUrls: ['./anomalias.component.css']
 })
