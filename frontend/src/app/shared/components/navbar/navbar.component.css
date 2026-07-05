@@ -1,0 +1,150 @@
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 80px;
+  background-color: #27364a;
+  padding: 0 32px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+  font-size: 17px;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+
+/* Elementos del lado izquierdo */
+.left-section .fecha-completa,
+.reloj {
+  font-size: 18px;
+  color: #f0f0f0;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+/* Elementos del lado derecho */
+.right-section {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.tema-icono,
+.notificaciones-icono,
+.recargar-icono,
+.flecha {
+  font-size: 22px;
+  color: #e5e7eb;
+  cursor: pointer;
+  transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.tema-icono:hover,
+.recargar-icono:hover,
+.notificaciones-icono:hover {
+  color: #66b2ff;
+  transform: scale(1.1);
+}
+
+.usuario {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  position: relative;
+  transition: opacity 0.2s ease;
+}
+
+.nombre-usuario {
+  margin-right: 12px;
+  font-weight: 500;
+  font-size: 17px;
+  color: #ffffff;
+  transition: color 0.2s ease;
+}
+
+.avatar-icon {
+  font-size: 44px;
+  color: #ffffff;
+  margin-right: 8px;
+  transition: color 0.2s ease, transform 0.2s ease;
+}
+.avatar-icon:hover {
+  color: #66b2ff;
+  transform: scale(1.05);
+}
+
+/* Menú desplegable */
+.menu-usuario {
+  position: absolute;
+  top: 60px;
+  right: 0;
+  background-color: #ffffff;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  min-width: 180px;
+  z-index: 999;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.menu-usuario div {
+  padding: 14px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  color: #333;
+}
+
+.menu-usuario div:hover {
+  background-color: #f0f0f0;
+}
+
+/* Idioma selector */
+.idioma-selector {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 16px;
+  color: #e5e7eb;
+  transition: color 0.2s ease;
+}
+.idioma-selector select {
+  font-size: 15px;
+  padding: 3px 6px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  background-color: white;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+}
+
+/* Toggle tema */
+.tema-toggle {
+  cursor: pointer;
+  font-size: 20px;
+  color: #e5e7eb;
+  transition: color 0.2s ease;
+}
+.tema-toggle:hover {
+  color: #66b2ff;
+}
+
+
+
+.btn-ir-inicio {
+  background-color: #3b82f6;
+  border: none;
+  color: #fff;
+  padding: 8px 14px;
+  font-size: 15px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.btn-ir-inicio:hover {
+  background-color: #2563eb;
+  transform: scale(1.05);
+}

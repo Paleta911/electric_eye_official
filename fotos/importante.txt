@@ -1,0 +1,7 @@
+En el documento X se detalla esta parte, pero para uso rápido en esta carpeta C:/.../fotos es donde van las fotos de las personas para el reconocimiento facial.
+
+Dentro de cada subcarpeta debes colocar las fotos de una persona.
+
+Ejemplo: en la carpeta "persona1" debes colocar todas las fotos de "Alexis" con diferentes ángulos, gestos, cambios de luz y variaciones en sus fotos.
+
+Esto con el fin de entrenar el modelo cuando se ejecute y "reconozca" (en este caso) a "Alexis"

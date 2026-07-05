@@ -1,0 +1,14 @@
+.features {
+  padding: 60px 20px;
+  text-align: center;
+}
+
+.features ul {
+  list-style: none;
+  padding: 0;
+}
+
+.features ul li {
+  font-size: 18px;
+  margin: 10px 0;
+}

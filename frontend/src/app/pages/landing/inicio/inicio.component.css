@@ -1,0 +1,856 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+:root {
+    --primary-color: #007BFF;
+    --background-color: #f9f9f9;
+    --dark-color: #151515;
+    --text-color: #333;
+}
+
+html {
+    font-size: 62.5%;
+    font-family: 'Poppins', sans-serif;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.main-content {
+
+}
+
+
+
+
+/* ********************************** */
+/*             UTILIDADES             */
+/* ********************************** */
+.container {
+    max-width: 120rem;
+    margin: 0 auto;
+}
+
+.heading-1 {
+    text-align: center;
+    font-weight: 500;
+    font-size: 3rem;
+    color: var(--dark-color);
+}
+
+
+
+/* ********************************** */
+/*               BANNER               */
+/* ********************************** */
+.banner {
+    background-image: linear-gradient(100deg, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.2)),
+        url('https://serviciospezoa.cl/wp-content/uploads/2018/04/Yang-Harus-Diperhatikan-dalam-Pemasangan-CCTV.jpg');
+        height: 35rem;
+        background-size: cover;
+    background-position: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.content-banner {
+    text-align: center;
+    color: white;
+}
+
+.content-banner p {
+    font-size: 1.6rem;
+    margin-bottom: 1rem;
+}
+
+.content-banner h2 {
+    font-size: 4rem;
+    font-weight: 600;
+    margin-bottom: 2rem;
+}
+
+
+
+.content-banner a:hover {
+    background-color: var(--dark-color);
+}
+
+
+/* Estilos del botón "Descubre más" */
+.btn-discover {
+  display: inline-block;
+  background-color: #007BFF !important; /* Azul llamativo */
+  color: white;
+  padding: 1.0rem 1.5rem; /* Tamaño más grande */
+  font-size: 1.5rem; /* Texto más grande */
+  font-weight: bold;
+  border-radius: 50px; /* Hace que sea más circular */
+  text-decoration: none;
+  text-align: center;
+  transition: transform 0.3s ease, background 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: 0px 6px 12px rgba(0, 123, 255, 0.3);
+  cursor: pointer;
+  border: none;
+
+
+}
+
+/* Efecto hover */
+.btn-discover:hover {
+  background-color: #0056b3;
+  transform: scale(1.1); /* Más grande al pasar el cursor */
+  box-shadow: 0px 8px 20px rgba(0, 123, 255, 0.5);
+}
+
+/* Efecto clic */
+.btn-discover:active {
+  transform: scale(0.95); /* Pequeño efecto de presión */
+}
+
+
+
+
+
+
+
+
+/* ------------------------------ */
+/*          INICIO SECTION          */
+/* ------------------------------ */
+.hero-section {
+  padding: 4rem 2rem;
+}
+
+.hero-container {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  max-width: 1300px;
+  margin: 0 auto;
+  gap: 2rem;
+}
+
+.hero-content {
+  flex: 1 1 500px;
+  max-width: 600px;
+  text-align: left;
+}
+
+.hero-title {
+  font-size: 2.8rem;
+  color: #0d2d52;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+.hero-subtitle {
+  font-size: 1.5rem;
+  color: #555;
+  line-height: 1.6;
+  margin-bottom: 2rem;
+}
+
+.hero-button {
+  display: inline-block;
+  background-color: #0073e6;
+  color: #fff;
+  padding: 0.9rem 1.6rem;
+  border-radius: 0.5rem;
+  text-decoration: none;
+  font-weight: 600;
+  transition: background 0.3s;
+}
+
+.hero-button:hover {
+  background-color: #005bb5;
+}
+
+.hero-image {
+  flex: 1 1 400px;
+  max-width: 600px;
+}
+
+.hero-image img {
+  width: 100%;
+  border-radius: 1rem;
+  display: block;
+}
+
+
+
+
+
+
+
+/* ------------------------------ */
+/*       BENEFITS SECTION         */
+/* ------------------------------ */
+.benefits-section {
+  padding: 4rem 2rem;
+}
+
+.benefits-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.benefits-header {
+  margin-bottom: 3rem;
+}
+
+.benefits-title {
+  font-size: 2.2rem;
+  color: #0d2d52;
+  margin-bottom: 1rem;
+}
+
+.benefits-description {
+  font-size: 1.5rem;
+  color: #555;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.benefits-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+.benefit-item {
+  background: #f5f7fa;
+  padding: 2rem;
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.benefit-item:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+}
+
+.benefit-item i {
+  font-size: 3rem;
+  color: #0073e6;
+  margin-bottom: 1rem;
+}
+
+.benefit-item h4 {
+  font-size: 1.3rem;
+  margin-bottom: 0.6rem;
+  color: #222;
+}
+
+.benefit-item p {
+  font-size: 1.2rem;
+  color: #555;
+}
+
+
+
+
+
+
+
+/* ********************************** */
+/*         SECCIÓN DE CONTACTO        */
+/* ********************************** */
+.contact-section {
+  background: linear-gradient(to right, rgba(0, 39, 77, 0.795), rgba(0, 39, 77, 0.644)),
+      url('https://callendary.com/storage/app/public/admin-assets/images/blog/blog-65aa350a7468a.jpg');
+  background-size: cover;
+  background-position: center;
+  color: white;
+  padding: 5rem 2rem;
+}
+
+.contact-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1200px;
+  margin: 0 auto;
+  gap: 4rem;
+}
+
+.contact-text {
+  flex: 1;
+}
+
+.contact-text h1 {
+  font-size: 3.5rem;
+  font-weight: bold;
+  line-height: 1.2;
+  margin-bottom: 1.5rem;
+}
+
+.contact-text p {
+  font-size: 1.5rem;
+text-align: justify;
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
+}
+
+.contact-form {
+  flex: 1;
+  background: white;
+  padding: 3rem;
+  border-radius: 1rem;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.contact-form form {
+  display: flex;
+  flex-direction: column;
+}
+
+.contact-form h1{
+
+  color: #000;
+}
+
+.contact-form label {
+  font-size: 1.7rem;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+  color: black;
+}
+
+.contact-form span {
+  color: red;
+}
+
+.contact-form input,
+.contact-form select {
+  font-size: 1.4rem;
+  padding: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  margin-bottom: 1.5rem;
+  width: 100%;
+}
+
+/* Estilos para la lista desplegable */
+.contact-form select {
+  appearance: none;
+  background: #fff;
+  cursor: pointer;
+}
+
+/* Flecha personalizada en la lista desplegable */
+.contact-form select:after {
+  content: "▼";
+  font-size: 1.2rem;
+  position: absolute;
+  right: 1.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.contact-form button {
+  background-color: #007BFF !important;
+  color: white;
+  border: none;
+  padding: 1rem;
+  font-size: 1.6rem;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.3s ease-in-out;
+}
+
+.contact-form button:hover {
+  background: #125699;
+}
+
+/* Responsivo */
+@media (max-width: 768px) {
+  .contact-container {
+      flex-direction: column;
+      text-align: center;
+  }
+
+  .contact-text h1 {
+      font-size: 2.5rem;
+  }
+
+  .contact-text p {
+      font-size: 1.8rem;
+  }
+
+  .contact-form {
+      width: 100%;
+  }
+}
+
+
+
+
+
+
+
+/* ********************************** */
+/*        SECCIÓN DE PROYECTO         */
+/* ********************************** */
+.project-section {
+  padding-top: 5rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.project-container {
+  display: flex;
+  max-width: 1200px;
+  gap: 4rem;
+  align-items: center;
+}
+
+/* Estilo del texto */
+.project-text {
+  flex: 1;
+}
+
+
+
+.project-text h1 {
+  font-size: 3rem;
+    color: #0d2d52;
+
+  font-weight: bold;
+  margin-bottom: 1.5rem;
+}
+
+.project-text p {
+  font-size: 1.5rem;
+  color: #333;
+  margin-bottom: 1.5rem;
+  text-align: justify;
+}
+
+.project-text ul {
+  list-style: none;
+  padding: 0;
+}
+
+.project-text ul li {
+  font-size: 1.5rem;
+  color: #444;
+  margin-bottom: 0.8rem;
+  padding-left: 1.5rem;
+  text-align: justify;
+  position: relative;
+}
+
+.project-text ul li::before {
+  content: "•";
+  color: #007BFF;
+  font-size: 1.8rem;
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+
+/* Botón de contacto */
+.contact-btn {
+  display: inline-block;
+ background-color: #007BFF !important;
+  color: white;
+  padding: 1rem 2rem;
+  font-size: 1.6rem;
+  border-radius: 5px;
+  text-decoration: none;
+  font-weight: bold;
+  margin-top: 1rem;
+  transition: background 0.3s ease-in-out;
+}
+
+.contact-btn:hover {
+  background: #0056b3;
+}
+
+/* Galería de imágenes */
+.project-gallery {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+
+.project-gallery img {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+/* Responsivo */
+@media (max-width: 900px) {
+  .project-container {
+      flex-direction: column;
+      text-align: center;
+  }
+
+  .project-gallery {
+      grid-template-columns: repeat(2, 1fr);
+  }
+
+  .project-text h1 {
+      font-size: 2.5rem;
+  }
+
+  .project-text p {
+      font-size: 1.2rem;
+  }
+}
+
+@media (max-width: 600px) {
+  .project-gallery {
+      grid-template-columns: 1fr;
+  }
+}
+
+
+
+
+
+/*CARTAS DE SOLCIONES DESTACADAS*/
+
+
+.cards-info-section {
+  padding: 5rem 2rem;
+}
+
+.cards-info-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+
+}
+
+.cards-list {
+  flex: 1 1 280px;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.card-item {
+  background: #f1e7e7e9;
+  border-radius: 0.75rem;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  cursor: pointer;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.card-item:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+}
+
+.card-item.active {
+  border: 2px solid #0073e6;
+}
+
+.card-thumb {
+  height: 140px;
+  background-size: cover;
+  background-position: center;
+}
+
+.card-item h4 {
+  font-size: 1.3rem;
+  padding: 0.8rem;
+  margin: 0;
+  color: #222;
+}
+
+.card-info-display {
+  flex: 1 1 500px;
+  background: #f1f8ff8e;
+  padding: 2rem;
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.card-info-display h3 {
+  font-size: 2.0rem;
+  margin-bottom: 1rem;
+  color: #0d2d52;
+}
+
+.card-info-display p {
+  font-size: 1.5rem;
+  color: #555;
+  line-height: 1.6;
+}
+
+.cards-info-title {
+  padding-bottom: 3rem;
+  font-size: 2.2rem;
+  color: #0d2d52;
+}
+
+
+
+/* ********************************** */
+/* ********************************** */
+
+
+.button-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 3REM;
+}
+
+.service-button {
+  background-color: #007bff; /* Azul */
+  color: white;
+  font-size: 1.6rem;
+  font-weight: bold;
+  padding: 1rem 2rem;
+  border: none;
+  border-radius: 5px; /* Bordes cuadrados pero con leve suavizado */
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: all 0.3s ease-in-out;
+  text-decoration: none;
+}
+
+.service-button:hover {
+  background-color: #0056b3; /* Azul más oscuro */
+  transform: scale(1.05);
+}
+
+
+
+
+
+/* ------------------------------ */
+/*      INFO SECTION ANIMADA      */
+/* ------------------------------ */
+.info-section {
+  background: linear-gradient(to right, rgba(0, 39, 77, 0.795), rgba(0, 39, 77, 0.644)),
+      url('https://www.conceptosjuridicos.com/wp-content/uploads/2022/06/contrato-mercantil.jpg');
+  background-size: cover;
+  background-position: center;
+  color: white;
+  padding: 5rem 2rem;
+}
+
+.info-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Animación de aparición */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.info-card {
+  background: rgba(255,255,255,0.05);
+  backdrop-filter: blur(6px);
+  padding: 2rem;
+  border-radius: 8px;
+  text-align: center;
+  color: #fff;
+  border: 1px solid rgba(255,255,255,0.15);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  opacity: 0;
+  animation: fadeInUp 0.6s ease forwards;
+}
+
+/* Retraso progresivo */
+.info-card:nth-child(1) { animation-delay: 0.2s; }
+.info-card:nth-child(2) { animation-delay: 0.4s; }
+
+.info-icon {
+  color: #dcdcdc;
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  transition: transform 0.3s;
+}
+
+/* Bounce al pasar el ratón */
+@keyframes bounce {
+  0%,100% { transform: translateY(0); }
+  50%     { transform: translateY(-6px); }
+}
+
+.info-icon:hover {
+  animation: bounce 1s infinite;
+}
+
+.info-card h2 {
+  font-size: 1.8rem;
+  margin-bottom: 0.5rem;
+}
+
+.info-card p {
+  color: #ddd;
+  font-size: 1.4rem;
+  margin-bottom: 1.5rem;
+}
+
+.benefits-list {
+  list-style: none;
+  padding: 0;
+  margin: 1rem 0;
+}
+
+.benefits-list li {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #ddd;
+  font-size: 1.4rem;
+  margin-bottom: 0.8rem;
+}
+
+.check-icon {
+  color: #dad8d8;
+}
+
+.btn {
+  display: inline-block;
+  margin-top: 1rem;
+  padding: 0.75rem 1.5rem;
+  background: #c0c0c0;
+  color: #0f0f0f;
+  border-radius: 4px;
+  text-decoration: none;
+  font-weight: 500;
+  transition: background 0.3s, transform 0.2s;
+}
+
+.btn:hover {
+  background: #c9c9c9;
+  transform: translateY(-2px);
+}
+
+
+
+
+/* ------------------------------ */
+/*   SECCIÓN TESTIMONIOS CLIENTES */
+/* ------------------------------ */
+.testimonials-section {
+  padding: 4rem 2rem;
+}
+
+.testimonials-container {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.testimonials-content {
+  flex: 1 1 480px;
+  max-width: 600px;
+}
+
+
+
+.testimonials-title {
+  font-size: 2.2rem;
+  color: #0d2d52;
+  margin-bottom: 1.2rem;
+}
+
+.testimonials-description {
+  font-size: 1.5rem;
+  line-height: 1.6;
+  color: #555;
+  margin-bottom: 1.5rem;
+}
+
+.testimonial-quote {
+  background: #ffffff;
+  border-left: 4px solid #0073e6;
+  padding: 1rem 1.2rem;
+  margin-bottom: 1.5rem;
+  font-style: italic;
+  color: #333;
+}
+
+.testimonial-highlights {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.highlight-item {
+  flex: 1 1 200px;
+  background: #ffffff;
+  border-radius: 0.75rem;
+  padding: 1rem;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  text-align: center;
+}
+
+.highlight-item i {
+  font-size: 1.9rem;
+  color: #0073e6;
+  margin-bottom: 0.5rem;
+}
+
+.highlight-item h4 {
+  font-size: 1.4rem;
+  margin-bottom: 0.4rem;
+  color: #222;
+}
+
+.highlight-item p {
+  font-size: 1.1rem;
+  color: #555;
+}
+
+.btn-primary {
+  display: inline-block;
+  padding: 0.75rem 1.5rem;
+  background-color: #0073e6;
+  color: #fff;
+  border-radius: 0.5rem;
+  text-decoration: none;
+  font-size: 1.2rem;
+  transition: background 0.3s;
+}
+
+.btn-primary:hover {
+  background-color: #005bb5;
+}
+
+.testimonials-image {
+  flex: 1 1 380px;
+  max-width: 500px;
+}
+
+.testimonials-image img {
+  width: 100%;
+  border-radius: 1rem;
+  display: block;
+}
+
+
+
+

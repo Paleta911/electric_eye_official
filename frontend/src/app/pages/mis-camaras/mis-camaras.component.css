@@ -1,0 +1,40 @@
+.container1{
+  margin: 20px;
+}
+
+.hover-card {
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease;
+}
+.hover-card:hover {
+  transform: scale(1.015);
+  box-shadow: 0 0.75rem 1.5rem rgba(0, 0, 0, 0.075);
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.camera-card {
+  border-radius: 12px;
+  overflow: hidden;
+  transition: all 0.2s ease;
+}
+
+.dot {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  animation: pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 1; }
+}
+
+#tamaño_txtSede {
+  font-size: 20px;
+  margin-right: 10px;
+}
+

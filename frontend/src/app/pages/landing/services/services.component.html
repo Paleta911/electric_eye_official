@@ -1,0 +1,205 @@
+<!-- Hero Section -->
+<section id="services-hero" class="hero">
+  <h1 class="hero__title">SERVICIOS</h1>
+</section>
+
+<!-- Services Navigation -->
+<nav class="services-nav">
+  <div class="services-nav__grid layout-container">
+    <div class="services-nav__card" (click)="scrollToSection('perimeter-security')">
+      <fa-icon [icon]="['fas','shield-alt']" class="services-nav__icon"></fa-icon>
+      <span class="services-nav__label">Seguridad Perimetral</span>
+    </div>
+    <div class="services-nav__card" (click)="scrollToSection('access-control')">
+      <fa-icon [icon]="['fas','door-closed']" class="services-nav__icon"></fa-icon>
+      <span class="services-nav__label">Control de Accesos</span>
+    </div>
+    <div class="services-nav__card" (click)="scrollToSection('attendance-supervision')">
+      <fa-icon [icon]="['fas','clock']" class="services-nav__icon"></fa-icon>
+      <span class="services-nav__label">Asistencia y Supervisión</span>
+    </div>
+    <div class="services-nav__card" (click)="scrollToSection('camera-maintenance')">
+      <fa-icon [icon]="['fas','video']" class="services-nav__icon"></fa-icon>
+      <span class="services-nav__label">Mantenimiento de Cámaras</span>
+    </div>
+    <div class="services-nav__card" (click)="scrollToSection('tech-integrations')">
+      <fa-icon [icon]="['fas','network-wired']" class="services-nav__icon"></fa-icon>
+      <span class="services-nav__label">Integraciones Tecnológicas</span>
+    </div>
+  </div>
+</nav>
+
+<!-- Service 1 -->
+<section id="perimeter-security" class="service-block">
+  <div class="service-block__content layout-container">
+    <div class="service-block__text">
+      <h2 class="service-block__heading">Análisis y Mejora de Seguridad Perimetral</h2>
+      <div class="service-detail">
+        <fa-icon [icon]="['fas','exclamation-triangle']" class="service-detail__icon"></fa-icon>
+        <p class="service-detail__info">
+          <strong>Detección de objetos sospechosos:</strong> IA identifica armas, paquetes abandonados, etc.
+        </p>
+      </div>
+      <div class="service-detail">
+        <fa-icon [icon]="['fas','eye']" class="service-detail__icon"></fa-icon>
+        <p class="service-detail__info">
+          <strong>Monitoreo en tiempo real:</strong> Cámaras analizan áreas y notifican actividades inusuales.
+        </p>
+      </div>
+      <div class="service-detail">
+        <fa-icon [icon]="['fas','user-secret']" class="service-detail__icon"></fa-icon>
+        <p class="service-detail__info">
+          <strong>Detección de rostros cubiertos:</strong> Identificación de pasamontañas y máscaras.
+        </p>
+      </div>
+      <div class="service-block__contact">
+        <p class="service-block__prompt">¿Necesitas más info sobre este servicio?</p>
+        <button class="btn-primary" routerLink="/contact">Contáctanos</button>
+      </div>
+    </div>
+    <div class="service-block__media">
+      <img src="https://www.ventasdeseguridad.com/images/stories/VDS/2022/Deteccin_facial_entre_el_debate_de_la_seguridad_y_la_privacidad.jpg"
+           alt="Seguridad Perimetral" class="service-block__image">
+    </div>
+  </div>
+</section>
+
+<!-- Service 2 -->
+<section id="access-control" class="service-block service-block--reverse">
+  <div class="service-block__content layout-container">
+    <div class="service-block__media">
+      <img src="https://www.ecured.cu/images/6/6b/Reconocimiento-facial.jpg"
+           alt="Control de Accesos" class="service-block__image">
+    </div>
+    <div class="service-block__text">
+      <h2 class="service-block__heading">Automatización de Control de Accesos</h2>
+      <div class="service-detail">
+        <fa-icon [icon]="['fas','id-card']" class="service-detail__icon"></fa-icon>
+        <p class="service-detail__info">
+          <strong>Identificación automática:</strong> Reconocimiento facial de usuarios registrados.
+        </p>
+      </div>
+      <div class="service-detail">
+        <fa-icon [icon]="['fas','bell']" class="service-detail__icon"></fa-icon>
+        <p class="service-detail__info">
+          <strong>Alertas no autorizadas:</strong> Notificaciones ante intentos de ingreso indebido.
+        </p>
+      </div>
+      <div class="service-detail">
+        <fa-icon [icon]="['fas','route']" class="service-detail__icon"></fa-icon>
+        <p class="service-detail__info">
+          <strong>Seguimiento en zonas:</strong> IA analiza desplazamientos sospechosos.
+        </p>
+      </div>
+      <div class="service-block__contact">
+        <p class="service-block__prompt">¿Más detalles de este servicio?</p>
+        <button class="btn-primary" routerLink="/contact">Contáctanos</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Service 3 -->
+<section id="attendance-supervision" class="service-block">
+  <div class="service-block__content layout-container">
+    <div class="service-block__text">
+      <h2 class="service-block__heading">Optimización en Asistencia y Supervisión</h2>
+      <div class="service-detail">
+        <fa-icon [icon]="['fas','calendar-check']" class="service-detail__icon"></fa-icon>
+        <p class="service-detail__info">
+          <strong>Registro de entradas/salidas:</strong> Detección automática de horarios.
+        </p>
+      </div>
+      <div class="service-detail">
+        <fa-icon [icon]="['fas','user-check']" class="service-detail__icon"></fa-icon>
+        <p class="service-detail__info">
+          <strong>Prevención de suplantación:</strong> Evita accesos con fotos o videos falsos.
+        </p>
+      </div>
+      <div class="service-detail">
+        <fa-icon [icon]="['fas','project-diagram']" class="service-detail__icon"></fa-icon>
+        <p class="service-detail__info">
+          <strong>Análisis de flujo:</strong> Identifica zonas de alta concurrencia.
+        </p>
+      </div>
+      <div class="service-block__contact">
+        <p class="service-block__prompt">¿Quieres saber más?</p>
+        <button class="btn-primary" routerLink="/contact">Contáctanos</button>
+      </div>
+    </div>
+    <div class="service-block__media">
+      <img src="https://misaulas.com/wp-content/uploads/2024/05/Deepface-2-768x326.png"
+           alt="Supervisión Asistida" class="service-block__image">
+    </div>
+  </div>
+</section>
+
+<!-- Service 4 -->
+<section id="camera-maintenance" class="service-block service-block--reverse">
+  <div class="service-block__content layout-container">
+    <div class="service-block__media">
+      <img src="https://www.mobotix.com/sites/default/files/styles/media_image/public/2020-03/mx_thermalm16_people_930x550.jpg"
+           alt="Mantenimiento" class="service-block__image">
+    </div>
+    <div class="service-block__text">
+      <h2 class="service-block__heading">Mantenimiento y Monitoreo de Cámaras</h2>
+      <div class="service-detail">
+        <fa-icon [icon]="['fas','tools']" class="service-detail__icon"></fa-icon>
+        <p class="service-detail__info">
+          <strong>Detección de manipulación:</strong> IA detecta si la cámara es movida o bloqueada.
+        </p>
+      </div>
+      <div class="service-detail">
+        <fa-icon [icon]="['fas','temperature-high']" class="service-detail__icon"></fa-icon>
+        <p class="service-detail__info">
+          <strong>Cámaras térmicas:</strong> Monitoreo en baja visibilidad.
+        </p>
+      </div>
+      <div class="service-detail">
+        <fa-icon [icon]="['fas','battery-full']" class="service-detail__icon"></fa-icon>
+        <p class="service-detail__info">
+          <strong>Gestión energética:</strong> Control del consumo para eficiencia.
+        </p>
+      </div>
+      <div class="service-block__contact">
+        <p class="service-block__prompt">¿Dudas sobre este servicio?</p>
+        <button class="btn-primary" routerLink="/contact">Contáctanos</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Service 5 -->
+<section id="tech-integrations" class="service-block">
+  <div class="service-block__content layout-container">
+    <div class="service-block__text">
+      <h2 class="service-block__heading">Integraciones con Otras Tecnologías</h2>
+      <div class="service-detail">
+        <fa-icon [icon]="['fas','bell']" class="service-detail__icon"></fa-icon>
+        <p class="service-detail__info">
+          <strong>Sistemas de alarmas:</strong> Activación automática de alertas.
+        </p>
+      </div>
+      <div class="service-detail">
+        <fa-icon [icon]="['fas','database']" class="service-detail__icon"></fa-icon>
+        <p class="service-detail__info">
+          <strong>Enlace a bases de datos:</strong> Identificación en tiempo real.
+        </p>
+      </div>
+      <div class="service-detail">
+        <fa-icon [icon]="['fas','link']" class="service-detail__icon"></fa-icon>
+        <p class="service-detail__info">
+          <strong>Blockchain:</strong> Registro inmutable de eventos de seguridad.
+        </p>
+      </div>
+      <div class="service-block__contact">
+        <p class="service-block__prompt">¿Quieres más detalles?</p>
+        <button class="btn-primary" routerLink="/contact">Contáctanos</button>
+      </div>
+    </div>
+    <div class="service-block__media">
+      <img src="https://pub-bbd7a5e39ace471789419f06775be4ec.r2.dev/files/rubricator/b700d9764fe720931d3a690b99b506084ba4cd9e.png"
+           alt="Integraciones Tecnológicas" class="service-block__image">
+    </div>
+  </div>
+</section>

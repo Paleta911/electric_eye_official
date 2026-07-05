@@ -1,0 +1,9 @@
+opencv-python
+opencv-contrib-python
+numpy
+ultralytics
+pymongo
+python-dateutil
+face_recognition
+matplotlib
+python-dotenv

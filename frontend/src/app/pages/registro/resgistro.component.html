@@ -1,0 +1,82 @@
+<div class="key-wrapper">
+  <!-- Fondo animado -->
+  <div class="animated-background">
+    <i
+      *ngFor="let icon of iconos"
+      class="fas floating-icon"
+      [ngClass]="icon.class"
+      [style.left.%]="icon.left"
+      [style.animationDuration.s]="icon.duration"
+      [style.animationDelay.s]="icon.delay"
+      [style.fontSize.px]="icon.size"
+    ></i>
+  </div>
+
+  <!-- Tarjeta de registro -->
+  <div class="key-glass animate-entry">
+    <img src="assets/logo.png" alt="Logo" class="key-logo" />
+
+    <h2 class="key-title">Crear una cuenta</h2>
+    <p class="key-subtitle">Rellena los campos para registrarte</p>
+
+    <!-- Email -->
+    <div class="input-icon-wrapper mb-3">
+      <i class="fas fa-envelope input-icon"></i>
+      <input
+        type="email"
+        class="key-input"
+        placeholder="Correo electrónico"
+        [(ngModel)]="form.email"
+        name="email"
+        required
+      />
+    </div>
+
+    <!-- Número de celular -->
+<div class="input-icon-wrapper mb-3">
+  <i class="fas fa-phone input-icon"></i>
+  <input
+    type="tel"
+    class="key-input"
+    placeholder="Número de celular"
+    [(ngModel)]="form.phone"
+    name="phone"
+    required
+  />
+</div>
+
+
+    <!-- Contraseña -->
+    <div class="input-icon-wrapper">
+      <i class="fas fa-lock input-icon"></i>
+      <input
+        [type]="mostrarClave ? 'text' : 'password'"
+        class="key-input"
+        placeholder="Contraseña"
+        [(ngModel)]="form.password"
+        name="password"
+        required
+      />
+      <i
+        class="fas toggle-eye"
+        [ngClass]="mostrarClave ? 'fa-eye-slash' : 'fa-eye'"
+        (click)="mostrarClave = !mostrarClave"
+      ></i>
+    </div>
+
+    <!-- Mensaje de error o éxito -->
+    <div *ngIf="mensaje" class="error-message mt-3">
+      {{ mensaje }}
+    </div>
+
+    <!-- Botón de registro -->
+    <button class="btn-ingresar mt-3" (click)="registrar()">
+      <i class="fas fa-user-plus me-2"></i> Registrarse
+    </button>
+
+    <!-- Botón volver al inicio -->
+    <button class="btn-volver-inicio mt-3" (click)="irAlInicio()">
+      <i class="fas fa-home me-1"></i> Volver al inicio
+    </button>
+  </div>
+</div>

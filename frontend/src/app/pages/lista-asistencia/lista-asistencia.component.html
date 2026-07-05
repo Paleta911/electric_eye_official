@@ -1,0 +1,105 @@
+<div class="asistencia-container">
+  <!-- Filtros -->
+  <div class="filtros-asistencia mb-3 d-flex flex-wrap gap-3 align-items-center">
+    <div class="form-group mb-0">
+      <div class="form-group mb-0 position-relative buscador-asistencia" style="width: 400px;">
+        <i class="fas fa-search icono-lupa-asistencia position-absolute"></i>
+        <input
+          type="text"
+          class="form-control buscador-input ps-5"
+          placeholder="Buscar por nombre o puesto"
+          [(ngModel)]="filtroBusqueda"
+        />
+      </div>
+    </div>
+    <div class="form-group mb-0">
+      <select class="form-select" [(ngModel)]="filtroEstado">
+        <option value="">Todos</option>
+        <option value="Presente">Presente</option>
+        <option value="Ausente">Ausente</option>
+      </select>
+    </div>
+    <div class="form-group mb-0">
+      <input type="date" class="form-control" [(ngModel)]="filtroFecha" />
+    </div>
+  </div>
+
+  <!-- Resumen -->
+  <div class="resumen-asistencia d-flex flex-wrap gap-4 mb-3">
+    <div class="resumen-card bg-light border-start border-4 border-primary shadow-sm">
+      <h5 class="mb-1">Total</h5>
+      <p class="resumen-numero">{{ totalAsistencias }}</p>
+    </div>
+    <div class="resumen-card bg-light border-start border-4 border-success shadow-sm">
+      <h5 class="mb-1">Presentes</h5>
+      <p class="resumen-numero text-success">{{ presentes }}</p>
+    </div>
+    <div class="resumen-card bg-light border-start border-4 border-danger shadow-sm">
+      <h5 class="mb-1">Ausentes</h5>
+      <p class="resumen-numero text-danger">{{ ausentes }}</p>
+    </div>
+  </div>
+
+  <!-- Contenedor tabla y paginación -->
+  <div class="tabla-wrapper">
+    <div class="tabla-scroll">
+      <table class="table table-hover align-middle rounded shadow-sm overflow-hidden">
+        <thead class="table-primary text-center">
+          <tr>
+            <th>Foto</th>
+            <th>Nombre</th>
+            <th>Puesto</th>
+            <th>Fecha</th>
+            <th>Estado</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let rostro of paginaDatos" class="text-center">
+            <td>
+              <img
+                [src]="rostro.rostroUrl"
+                alt="Rostro"
+                class="miniatura"
+                (click)="ampliarImagen(rostro.rostroUrl)"
+              />
+            </td>
+            <td>{{ rostro.nombre }}</td>
+            <td>{{ rostro.puesto }}</td>
+            <td>{{ rostro.timestamp | date: 'dd/MM/yyyy HH:mm:ss' }}</td>
+            <td>
+              <span class="badge px-3 py-2"
+                [ngClass]="{
+                  'bg-success': rostro.estado === 'Presente',
+                  'bg-danger': rostro.estado === 'Ausente'
+                }">
+                {{ rostro.estado }}
+              </span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Paginación fija -->
+    <div class="paginacion-fija">
+      <button class="btn btn-outline-primary" (click)="cambiarPagina(-1)" [disabled]="paginaActual === 1">
+        ← Anterior
+      </button>
+      <span class="fw-semibold">Página {{ paginaActual }} de {{ totalPaginas }}</span>
+      <button class="btn btn-outline-primary" (click)="cambiarPagina(1)" [disabled]="paginaActual === totalPaginas">
+        Siguiente →
+      </button>
+    </div>
+  </div>
+
+  <!-- Modal de imagen -->
+  <div class="modal" *ngIf="imagenAmpliada" (click)="cerrarModal()">
+    <img [src]="imagenAmpliada" class="modal-img" />
+    <span class="cerrar">✖</span>
+  </div>
+
+  <!-- Error de conexión -->
+  <div class="error-conexion" *ngIf="mostrarErrorConexion">
+    <div class="alert alert-danger">Error de conexión con el servidor</div>
+  </div>
+</div>

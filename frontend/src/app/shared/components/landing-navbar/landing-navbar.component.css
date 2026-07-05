@@ -1,0 +1,132 @@
+/* ************* NAVBAR ************* */
+
+/* Contenedor principal del navbar */
+.container-navbar {
+
+  left: 0;
+  width: 100%;
+  background-color: #111;
+  padding: 1rem 0;
+  z-index: 1000;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+/* Espaciado interior */
+#xd {
+  width: 100%;
+  padding: 1rem;
+}
+
+/* Navbar interior */
+.custom-navbar {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+/* Logo */
+.logo {
+  margin: 0;
+  padding: 0;
+}
+
+.logo a {
+  text-decoration: none;
+  font-size: 2.3rem;
+  font-weight: bold;
+  color: rgb(219, 216, 205);
+  transition: color 0.3s ease-in-out;
+  cursor: pointer;
+  display: block;
+  padding: 0 2rem 0 0;
+}
+
+.logo a:hover {
+  color: #00a6ff;
+}
+
+/* Menu */
+.menu {
+  display: flex;
+  gap: 1.5rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  flex: 1;
+  justify-content: center;
+}
+
+.menu li {
+  list-style: none;
+}
+
+.menu a {
+  text-decoration: none;
+  font-size: 1.5rem;
+  color: #e5e7eb;
+  font-weight: 500;
+  padding: 0.5rem 0.8rem;
+  border-radius: 4px;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.menu a:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #00a6ff;
+}
+
+/* Cliente */
+.client-section {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+  padding-right: 1rem;
+}
+
+/* Botón iniciar sesión */
+.btn-login {
+  background-color: #007bff;
+  color: white;
+  padding: 0.5rem 1rem;
+  font-size: 1.2rem;
+  font-weight: 500;
+  text-decoration: none;
+  border-radius: 4px;
+  transition: background-color 0.3s ease-in-out;
+  border: none;
+  cursor: pointer;
+}
+
+.btn-login:hover {
+  background-color: #0056b3;
+}
+
+/* Botón cerrar sesión */
+.btn-logout {
+  background: none;
+  border: 1px solid #ffffff33;
+  color: #e5e7eb;
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.btn-logout:hover {
+  background-color: #ffffff10;
+  color: #fff;
+}
+
+/* Mensaje de error */
+.error-msg {
+  background: #ffdddd;
+  color: #b30000;
+  padding: 0.8rem 1.2rem;
+  margin: 0;
+  text-align: center;
+  font-weight: bold;
+}

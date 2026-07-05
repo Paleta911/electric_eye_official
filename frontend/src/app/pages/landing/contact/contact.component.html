@@ -1,0 +1,76 @@
+
+
+
+
+<section class="banner">
+  <h1>CONTACTO</h1>
+</section>
+
+
+
+
+
+
+
+<section class="contact-section">
+  <div class="contact-container">
+      <!-- Tarjetas de información de contacto -->
+      <div class="contact-info">
+          <div class="contact-card">
+              <i class="fa-solid fa-phone"></i>
+              <h3>+52 6943 0174</h3>
+              <p>Teléfono</p>
+          </div>
+          <div class="contact-card active">
+              <i class="fa-solid fa-envelope"></i>
+              <h3 style="word-break: break-word;">electricEye&#64;gmail.com</h3>
+              <p>Correo Electrónico</p>
+          </div>
+          <div class="contact-card">
+              <i class="fa-solid fa-map-marker-alt"></i>
+              <h3>Veracruz</h3>
+              <p>Ubicación</p>
+          </div>
+      </div>
+
+      <!-- Formulario de contacto -->
+      <div class="contact-form">
+          <h2>Contáctanos Hoy Mismo</h2>
+          <p>Estamos disponibles para resolver tus dudas y brindarte soporte personalizado en todo momento.</p>
+
+          <form (submit)="onSubmit($event)">
+            <div class="form-group">
+                <div class="input-box">
+                    <label>Nombre <span>*</span></label>
+                    <input type="text" [(ngModel)]="name" name="name" placeholder="Nombre" required
+                        (keypress)="validateName($event)" />
+                </div>
+                <div class="input-box">
+                    <label>Teléfono <span>*</span></label>
+                    <input type="tel" [(ngModel)]="phone" name="phone" placeholder="Teléfono" required
+                        maxlength="10" (keypress)="validatePhone($event)" />
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="input-box full-width">
+                    <label>Mensaje <span>*</span></label>
+                    <textarea [(ngModel)]="message" name="message" placeholder="Mensaje" required minlength="10"></textarea>
+                </div>
+            </div>
+
+            <!-- Botón con animación de carga -->
+            <button type="submit" [disabled]="isLoading || !name || phone.length < 10 || !isMessageValid()"> Enviar
+                <span *ngIf="!isLoading"></span>
+                <span *ngIf="isLoading" class="loading-spinner"></span>
+            </button>
+
+            <!-- Mensaje de confirmación -->
+            <p *ngIf="showSuccessMessage" class="success-message">✅ ¡Tu mensaje ha sido enviado correctamente!</p>
+        </form>
+
+
+
+
+      </div>
+  </div>
+</section>

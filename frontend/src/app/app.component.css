@@ -1,0 +1,13 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;   /* Toda la pantalla */
+  min-height: 0;   /* Necesario para scroll interno */
+  overflow: hidden;
+}
+
+router-outlet {
+  flex: 1;
+  display: flex;
+  min-height: 0;   /* Importante */
+}

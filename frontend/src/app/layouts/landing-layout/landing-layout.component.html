@@ -1,0 +1,7 @@
+<div class="landing-container">
+  <app-landing-navbar *ngIf="mostrarLandingNavbar()"></app-landing-navbar>
+
+  <router-outlet></router-outlet>
+
+  <app-footer *ngIf="mostrarLandingNavbar()"></app-footer>
+</div>

@@ -1,0 +1,45 @@
+<div class="configuracion-wrapper">
+  <h2>Configuración de la Cuenta</h2>
+
+  <div *ngIf="cargando">Cargando estado de verificación en dos pasos...</div>
+
+  <div *ngIf="!cargando">
+    <!-- Si 2FA está habilitado -->
+    <div *ngIf="estado2FA && !qrImage; else noActivo">
+      <p><i class="fas fa-lock"></i> La autenticación de dos factores está <strong>ACTIVADA</strong>.</p>
+      <button (click)="desactivar2FA()" class="btn-desactivar">Desactivar 2FA</button>
+    </div>
+
+    <!-- Si 2FA NO está habilitado -->
+    <ng-template #noActivo>
+      <p><i class="fas fa-unlock"></i> La autenticación de dos factores está <strong>DESACTIVADA</strong>.</p>
+      <button (click)="activar2FA()" class="btn-activar">Activar 2FA</button>
+    </ng-template>
+
+    <!-- Si hay QR para mostrar -->
+    <div *ngIf="qrImage" class="qr-container">
+      <p>Escanea este código QR con tu app de autenticación:</p>
+      <img [src]="qrImage" alt="QR Code" />
+
+      <p>Introduce el primer código de 6 dígitos para confirmar:</p>
+      <div class="input-icon-wrapper">
+        <i class="fas fa-shield-alt input-icon"></i>
+        <input
+          type="text"
+          class="key-input"
+          placeholder="123456"
+          maxlength="6"
+          [(ngModel)]="codigoVerificacion"
+        />
+      </div>
+      <button (click)="confirmarCodigo()" class="btn-confirmar">
+        Confirmar Código
+      </button>
+    </div>
+  </div>
+
+  <!-- Mensaje de error -->
+  <div *ngIf="error" class="error-message">
+    <i class="fas fa-exclamation-circle"></i> {{ error }}
+  </div>
+</div>

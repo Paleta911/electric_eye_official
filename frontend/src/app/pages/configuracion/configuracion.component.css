@@ -1,0 +1,105 @@
+.configuracion-wrapper {
+  max-width: 480px;
+  margin: 3rem auto;
+  padding: 2rem;
+  background: #ffffff;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  text-align: center;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+}
+
+.configuracion-wrapper h2 {
+  font-size: 1.8rem;
+  margin-bottom: 1.2rem;
+  color: #333;
+}
+
+.configuracion-wrapper p {
+  font-size: 1rem;
+  color: #555;
+}
+
+.qr-container img {
+  max-width: 180px;
+  margin: 1.5rem auto;
+  display: block;
+  border: 4px solid #eee;
+  border-radius: 8px;
+}
+
+.input-icon-wrapper {
+  position: relative;
+  margin-top: 1rem;
+}
+
+.input-icon {
+  position: absolute;
+  top: 50%;
+  left: 12px;
+  transform: translateY(-50%);
+  color: #999;
+  font-size: 1rem;
+}
+
+.key-input {
+  width: 100%;
+  padding: 0.6rem 0.6rem 0.6rem 2.2rem;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.key-input:focus {
+  border-color: #007bff;
+}
+
+/* Botones generales */
+.btn-activar,
+.btn-desactivar,
+.btn-confirmar {
+  margin-top: 1.2rem;
+  padding: 0.6rem 1.2rem;
+  font-size: 0.95rem;
+  font-weight: 500;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.btn-activar {
+  background-color: #007bff;
+  color: white;
+}
+.btn-activar:hover {
+  background-color: #0056b3;
+}
+
+.btn-desactivar {
+  background-color: #b00020;
+  color: white;
+}
+.btn-desactivar:hover {
+  background-color: #800015;
+}
+
+.btn-confirmar {
+  background-color: #28a745;
+  color: white;
+}
+.btn-confirmar:hover {
+  background-color: #1e7e34;
+}
+
+/* Mensaje de error */
+.error-message {
+  margin-top: 1rem;
+  color: #b00020;
+  background: #ffe5e5;
+  padding: 0.6rem;
+  border-radius: 4px;
+  font-size: 0.95rem;
+}

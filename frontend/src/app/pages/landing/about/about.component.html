@@ -1,0 +1,166 @@
+
+
+
+<section class="banner">
+  <h1>NOSOTROS</h1>
+</section>
+
+
+
+
+
+
+
+
+
+<section class="about-section">
+  <div class="about-container">
+      <!-- Imagen única a la izquierda -->
+      <div class="about-image">
+          <img src="https://st5.depositphotos.com/62628780/72552/i/450/depositphotos_725528246-stock-photo-construction-clipboard-people-tablet-planning.jpg" alt="Imagen Representativa">
+      </div>
+
+      <!-- Contenedor de texto a la derecha -->
+      <div class="about-content">
+          <h3 class="about-subtitle"> CONÓCENOS</h3>
+          <h2 class="about-title">Comprometidos Con Tu Seguridad Y Eficiencia</h2>
+          <p class="about-description">
+              En Electric Eye ofrecemos soluciones tecnológicas de vanguardia en seguridad electrónica,
+              infraestructura y telecomunicaciones, brindando tranquilidad y eficiencia en cada proyecto
+              que realizamos para nuestros clientes.
+          </p>
+
+          <div class="about-features">
+              <div class="feature-item">
+                  <i class="fa-solid fa-lightbulb"></i>
+                  <h4>Soluciones Personalizadas</h4>
+                  <p>Adaptamos nuestras tecnologías a tus necesidades específicas, maximizando resultados.</p>
+              </div>
+              <div class="feature-item">
+                  <i class="fa-solid fa-cogs"></i>
+                  <h4>Tecnología Innovadora</h4>
+                  <p>Implementamos herramientas avanzadas que garantizan la seguridad y eficiencia de tu entorno.</p>
+              </div>
+          </div>
+
+          <a href="#services" class="btn-primary">Más información →</a>
+      </div>
+  </div>
+</section>
+
+
+
+
+<section class="testimonials-section">
+  <div class="container">
+      <h3 class="section-subtitle"> TESTIMONIOS</h3>
+      <h2 class="section-title">Nuestros Clientes Dicen</h2>
+      <div class="testimonial-slider">
+          <div class="testimonial">
+              <p class="testimonial-text">
+                  <em>Excelente atención al cliente. Nos ofrecieron soluciones personalizadas que superaron nuestras expectativas en seguridad electrónica y control de acceso.</em>
+              </p>
+              <div class="testimonial-user">
+                  <img src="https://cdn-icons-png.flaticon.com/128/4202/4202835.png" alt="Cliente">
+                  <div>
+                      <h4 class="user-name">Carlos Hernández</h4>
+                      <p class="user-role">Cliente</p>
+                  </div>
+              </div>
+              <div class="dots">
+                  <span class="dot active"></span>
+                  <span class="dot"></span>
+                  <span class="dot"></span>
+                  <span class="dot"></span>
+              </div>
+          </div>
+      </div>
+      <div class="floating-images">
+          <img src="https://cdn-icons-png.flaticon.com/128/4086/4086679.png" alt="Cliente" class="floating-img img-left large">
+          <img src="https://cdn-icons-png.flaticon.com/128/2335/2335114.png" alt="Cliente" class="floating-img img-right large">
+      </div>
+  </div>
+</section>
+
+
+
+
+
+
+<section class="faq-section">
+  <div class="faq-container">
+    <!-- Lado Izquierdo: Preguntas -->
+    <div class="faq-content">
+      <h3 class="faq-subtitle"> PREGUNTAS FRECUENTES</h3>
+      <h2 class="faq-title">Resuelve Tus Dudas</h2>
+      <p>Encuentra respuestas claras y concisas a las preguntas más comunes sobre nuestras soluciones tecnológicas y servicios de seguridad.</p>
+
+      <!-- Pregunta 1 -->
+      <div class="faq-item" (click)="toggleFAQ(0)">
+        <div class="faq-question">
+          <h4 [class.active]="activeIndex === 0">¿Cómo funcionan las cámaras con IA?</h4>
+          <span class="faq-icon" [class.rotate]="activeIndex === 0">&#9662;</span>
+        </div>
+        <p class="faq-answer" [class.show]="activeIndex === 0">
+          Nuestras cámaras analizan en tiempo real el entorno y detectan actividad sospechosa mediante algoritmos avanzados de inteligencia artificial.
+        </p>
+      </div>
+
+      <!-- Pregunta 2 -->
+      <div class="faq-item" (click)="toggleFAQ(1)">
+        <div class="faq-question">
+          <h4 [class.active]="activeIndex === 1">¿Qué tipo de alertas puedo recibir?</h4>
+          <span class="faq-icon" [class.rotate]="activeIndex === 1">&#9662;</span>
+        </div>
+        <p class="faq-answer" [class.show]="activeIndex === 1">
+          Recibirás notificaciones en tiempo real sobre intrusos, accesos no autorizados y actividad inusual en tu propiedad.
+        </p>
+      </div>
+
+      <!-- Pregunta 3 -->
+      <div class="faq-item" (click)="toggleFAQ(2)">
+        <div class="faq-question">
+          <h4 [class.active]="activeIndex === 2">¿Se pueden integrar con otros sistemas de seguridad?</h4>
+          <span class="faq-icon" [class.rotate]="activeIndex === 2">&#9662;</span>
+        </div>
+        <p class="faq-answer" [class.show]="activeIndex === 2">
+          Sí, nuestras cámaras son compatibles con alarmas, cerraduras electrónicas y sistemas de control de acceso.
+        </p>
+      </div>
+
+      <!-- Pregunta 4 -->
+      <div class="faq-item" (click)="toggleFAQ(3)">
+        <div class="faq-question">
+          <h4 [class.active]="activeIndex === 3">¿Las cámaras pueden operar en condiciones de poca luz?</h4>
+          <span class="faq-icon" [class.rotate]="activeIndex === 3">&#9662;</span>
+        </div>
+        <p class="faq-answer" [class.show]="activeIndex === 3">
+          Sí, nuestras cámaras cuentan con visión nocturna avanzada para garantizar una vigilancia óptima en todo momento.
+        </p>
+      </div>
+
+      <!-- Pregunta 5 -->
+      <div class="faq-item" (click)="toggleFAQ(4)">
+        <div class="faq-question">
+          <h4 [class.active]="activeIndex === 4">¿Cómo puedo acceder a las grabaciones?</h4>
+          <span class="faq-icon" [class.rotate]="activeIndex === 4">&#9662;</span>
+        </div>
+        <p class="faq-answer" [class.show]="activeIndex === 4">
+          Puedes ver y descargar grabaciones desde nuestra plataforma web o aplicación móvil con almacenamiento seguro en la nube.
+        </p>
+      </div>
+    </div>
+
+    <!-- Lado Derecho: Imagen -->
+    <div class="faq-image-container">
+      <img src="https://cdn-icons-png.flaticon.com/128/5726/5726558.png" alt="Pregunta 1" class="faq-image img-top">
+      <img src="https://cdn-icons-png.flaticon.com/128/2661/2661460.png" alt="Pregunta 2" class="faq-image img-bottom-left">
+      <img src="https://cdn-icons-png.flaticon.com/128/8630/8630494.png" alt="Pregunta 3" class="faq-image img-bottom-right">
+    </div>
+
+  </div>
+</section>
+
+
+
+

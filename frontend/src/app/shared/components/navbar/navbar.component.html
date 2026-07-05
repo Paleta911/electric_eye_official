@@ -1,0 +1,47 @@
+<header class="navbar">
+  <div class="left-section">
+    <span class="fecha-completa">{{ fechaActual }}</span>
+  </div>
+
+  <div class="right-section">
+    <i
+      class="fas fa-sync-alt recargar-icono"
+      title="Refrescar datos"
+      (click)="recargarDatos()"
+    ></i>
+
+    <div class="idioma-selector">
+      <i class="fas fa-globe"></i>
+      <select>
+        <option value="es">ES</option>
+        <option value="en">EN</option>
+      </select>
+    </div>
+
+    <div
+      class="tema-toggle"
+      (click)="toggleTema()"
+      [title]="modoOscuro ? 'Tema claro' : 'Tema oscuro'"
+    >
+      <i class="fas" [ngClass]="modoOscuro ? 'fa-sun' : 'fa-moon'"></i>
+    </div>
+
+    <i class="fas fa-bell notificaciones-icono" title="Notificaciones"></i>
+
+    <!-- NUEVO BOTÓN "Ir al Inicio" -->
+    <button class="btn-ir-inicio" (click)="irAlInicio()">
+      <i class="fas fa-home"></i> Ir al Inicio
+    </button>
+
+    <div class="usuario" (click)="toggleMenuUsuario()">
+      <span class="nombre-usuario">admin</span>
+      <i class="fas fa-user-circle avatar-icon"></i>
+      <i class="fas fa-chevron-down flecha"></i>
+
+      <div class="menu-usuario" *ngIf="mostrarMenuUsuario">
+        <div (click)="abrirConfiguracion()">⚙ Configuración</div>
+        <div (click)="cerrarSesion()">🔓 Cerrar sesión</div>
+      </div>
+    </div>
+  </div>
+</header>

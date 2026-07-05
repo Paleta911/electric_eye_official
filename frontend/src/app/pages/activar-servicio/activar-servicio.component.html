@@ -1,0 +1,53 @@
+<div class="key-wrapper">
+  <!-- Fondo animado -->
+  <div class="animated-background">
+    <i
+      *ngFor="let icon of iconos"
+      class="fas floating-icon"
+      [ngClass]="icon.class"
+      [style.left.%]="icon.left"
+      [style.animationDuration.s]="icon.duration"
+      [style.animationDelay.s]="icon.delay"
+      [style.fontSize.px]="icon.size"
+    ></i>
+  </div>
+
+  <!-- Tarjeta de activación -->
+  <div class="key-glass animate-entry">
+    <img src="assets/logo.png" alt="Logo" class="key-logo" />
+
+    <h2 class="key-title">Activar servicio</h2>
+    <p class="key-subtitle">Ingresa tu clave de activación</p>
+
+    <form (ngSubmit)="activar()">
+      <!-- Campo clave de activación -->
+      <div class="input-icon-wrapper mb-3">
+        <i class="fas fa-key input-icon"></i>
+        <input
+          type="text"
+          class="key-input"
+          placeholder="Clave de activación"
+          [(ngModel)]="clave"
+          name="clave"
+          [disabled]="cargando"
+        />
+      </div>
+
+      <!-- Mensaje -->
+      <div *ngIf="mensaje" class="error-message mt-3">
+        {{ mensaje }}
+      </div>
+
+      <!-- Botón de activar -->
+      <button type="submit" class="btn-ingresar mt-3" [disabled]="cargando">
+        <i class="fas fa-check-circle me-2"></i> Activar servicio
+      </button>
+
+      <!-- Botón volver al inicio -->
+<button class="btn-volver-inicio mt-3" (click)="irAlInicio()">
+  <i class="fas fa-home me-1"></i> Volver al inicio
+</button>
+
+    </form>
+  </div>
+</div>

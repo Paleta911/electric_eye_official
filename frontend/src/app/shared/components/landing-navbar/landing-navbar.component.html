@@ -1,0 +1,36 @@
+<div #navbar class="container-navbar">
+  <nav class="custom-navbar" id="xd">
+    <div class="navbar-left">
+      <h1 class="logo">
+        <a routerLink="/">Electric Eye</a>
+      </h1>
+    </div>
+
+    <ul class="menu">
+      <li><a routerLink="/">Inicio</a></li>
+      <li><a routerLink="/about">Nosotros</a></li>
+      <li><a routerLink="/services">Servicios</a></li>
+      <li><a routerLink="/contact">Contacto</a></li>
+    </ul>
+
+    <div class="client-section">
+      <ng-container *ngIf="!estaLogueado; else loggedIn">
+        <button class="btn-login" (click)="irARegistro()">Registrarse</button>
+        <a class="btn-login" (click)="irALogin()">Iniciar sesión</a>
+      </ng-container>
+
+      <ng-template #loggedIn>
+        <button class="btn-login" (click)="irAlPanel()">
+          <i class="fas fa-th-large"></i> Ir al Panel
+        </button>
+        <button class="btn-logout" (click)="cerrarSesion()">
+          <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+        </button>
+      </ng-template>
+    </div>
+  </nav>
+
+  <div *ngIf="mensajeError" class="error-msg">
+    {{ mensajeError }}
+  </div>
+</div>

@@ -1,0 +1,150 @@
+<div
+  class="key-wrapper"
+  [ngClass]="{
+    'animacion-error': animacionError,
+    'desbloqueo-activo': desbloqueado
+  }"
+>
+  <!-- Fondo animado con íconos Font Awesome -->
+  <div class="animated-background">
+    <i
+      *ngFor="let icon of iconos"
+      class="fas floating-icon"
+      [ngClass]="icon.class"
+      [style.left.%]="icon.left"
+      [style.animationDuration.s]="icon.duration"
+      [style.animationDelay.s]="icon.delay"
+      [style.fontSize.px]="icon.size"
+    ></i>
+  </div>
+
+  <!-- Tarjeta de acceso -->
+  <div class="key-glass" [ngClass]="{ 'd-none': desbloqueado }">
+    <img src="assets/logo.png" alt="Logo" class="key-logo" />
+
+    <!-- Etapa 1: Usuario y contraseña -->
+    <div *ngIf="!show2FA">
+      <h2 class="key-title">Inicio de sesión</h2>
+      <p class="key-subtitle">Introduce tus credenciales para continuar</p>
+
+      <!-- Campo de Usuario -->
+      <div class="input-icon-wrapper mb-3">
+        <i class="fas fa-user input-icon"></i>
+        <input
+  type="text"
+  class="key-input"
+  placeholder="Correo electrónico o número de celular"
+  [(ngModel)]="identificador"
+  name="identificador"
+  required
+  [disabled]="locked"
+/>
+
+
+      </div>
+
+      <!-- Campo de Contraseña -->
+      <div class="input-icon-wrapper">
+        <i class="fas fa-lock input-icon"></i>
+        <input
+          [type]="mostrarClave ? 'text' : 'password'"
+          class="key-input"
+          placeholder="••••••••"
+          [(ngModel)]="password"
+          name="password"
+          required
+          [disabled]="locked"
+        />
+        <i
+          class="fas toggle-eye"
+          [ngClass]="mostrarClave ? 'fa-eye-slash' : 'fa-eye'"
+          (click)="mostrarClave = !mostrarClave"
+        ></i>
+      </div>
+
+      <!-- Mensaje de error -->
+      <div *ngIf="showError && !locked" class="error-message mt-2">
+        <i class="fas fa-exclamation-circle me-2"></i> {{ errorMessage }}
+      </div>
+
+      <!-- Botón de Ingreso -->
+      <button
+        class="btn-ingresar mt-3"
+        (click)="validateCredentialsWithBackend()"
+        [disabled]="locked"
+      >
+        <i class="fas fa-sign-in-alt me-2"></i> Iniciar Sesión
+      </button>
+
+      <!-- ¿Olvidó clave? -->
+      <button class="forgot-button mt-2" (click)="forgotKey()">
+        ¿Olvidaste tu clave?
+      </button>
+
+      <!-- Mensaje de contacto -->
+      <div *ngIf="showContactMessage" class="contact-message">
+        <i class="fas fa-phone-alt me-1"></i> Contacta a Soporte:<br />
+        <strong>+52 55 1234 5678</strong>
+      </div>
+
+      <!-- Intentos restantes -->
+      <div *ngIf="!locked && attemptsLeft < 4" class="intentos-restantes mt-3">
+        <i class="fas fa-key"></i> Intentos restantes:
+        <strong>{{ attemptsLeft }}</strong>
+      </div>
+
+      <!-- Cuenta bloqueada -->
+      <div *ngIf="locked" class="error-message mt-3">
+        <i class="fas fa-lock me-2"></i> Cuenta bloqueada. Contacta a soporte.
+      </div>
+
+<!-- Botón volver al inicio -->
+<button class="btn-volver-inicio mt-3" (click)="irAlInicio()">
+  <i class="fas fa-home me-1"></i> Volver al inicio
+</button>
+
+
+    </div>
+
+    <!-- Etapa 2: Código 2FA -->
+    <div *ngIf="show2FA">
+      <h2 class="key-title">Verificación en dos pasos</h2>
+      <p class="key-subtitle">Introduce tu código de autenticación</p>
+
+      <div class="input-icon-wrapper">
+        <i class="fas fa-shield-alt input-icon"></i>
+        <input
+          type="text"
+          class="key-input"
+          placeholder="123456"
+          maxlength="6"
+          [(ngModel)]="tokenInput"
+        />
+      </div>
+
+      <div *ngIf="showError" class="error-message mt-2">
+        <i class="fas fa-exclamation-circle me-2"></i> {{ errorMessage }}
+      </div>
+
+      <button
+        class="btn-ingresar mt-3"
+        (click)="verify2FA()"
+        [disabled]="isVerifying"
+      >
+        <i class="fas fa-check-circle me-2"></i> Verificar Código
+      </button>
+
+      <!-- Botón volver al inicio -->
+<button class="btn-volver-inicio mt-3" (click)="irAlInicio()">
+  <i class="fas fa-home me-1"></i> Volver al inicio
+</button>
+
+    </div>
+  </div>
+
+  <!-- Bienvenida después del desbloqueo -->
+  <div class="bienvenida" [ngClass]="{ 'd-none': !desbloqueado }">
+    <div class="dots-loader"></div>
+    <h2 class="mensaje">Iniciando sesión...</h2>
+  </div>
+</div>
