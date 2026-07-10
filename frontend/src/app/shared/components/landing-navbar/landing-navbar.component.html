@@ -1,37 +1,34 @@
-<div #navbar class="container-navbar">
-  <nav class="custom-navbar" id="xd">
-    <div class="navbar-left">
-      <h1 class="logo">
-        <a routerLink="/">Electric Eye</a>
-      </h1>
-    </div>
+<header class="site-header">
+  <nav class="site-nav" aria-label="Navegación principal">
+    <a class="brand" routerLink="/" (click)="cerrarMenu()">Electric Eye</a>
 
-    <ul class="menu">
-      <li><a routerLink="/">Inicio</a></li>
-      <li><a routerLink="/about">Nosotros</a></li>
-      <li><a routerLink="/services">Servicios</a></li>
-      <li><a routerLink="/contact">Contacto</a></li>
-    </ul>
+    <button type="button" class="menu-toggle" (click)="alternarMenu()"
+      [attr.aria-expanded]="menuAbierto" aria-controls="primary-navigation"
+      [attr.aria-label]="menuAbierto ? 'Cerrar menú' : 'Abrir menú'">
+      <i class="fas" [ngClass]="menuAbierto ? 'fa-times' : 'fa-bars'" aria-hidden="true"></i>
+    </button>
 
-    <div class="client-section">
-      @if (!estaLogueado) {
-        <button class="btn-login" (click)="irARegistro()">Registrarse</button>
-        <a class="btn-login" (click)="irALogin()">Iniciar sesión</a>
-      } @else {
-        <button class="btn-login" (click)="irAlPanel()">
-          <i class="fas fa-th-large"></i> Ir al Panel
-        </button>
-        <button class="btn-logout" (click)="cerrarSesion()">
-          <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
-        </button>
-      }
+    <div id="primary-navigation" class="nav-content" [class.is-open]="menuAbierto">
+      <ul class="nav-links">
+        <li><a routerLink="/" [routerLinkActiveOptions]="{ exact: true }" routerLinkActive="active" (click)="cerrarMenu()">Inicio</a></li>
+        <li><a routerLink="/about" routerLinkActive="active" (click)="cerrarMenu()">Nosotros</a></li>
+        <li><a routerLink="/services" routerLinkActive="active" (click)="cerrarMenu()">Servicios</a></li>
+        <li><a routerLink="/contact" routerLinkActive="active" (click)="cerrarMenu()">Contacto</a></li>
+      </ul>
 
+      <div class="nav-actions">
+        @if (!estaLogueado) {
+          <a class="button button-secondary" routerLink="/registro" (click)="cerrarMenu()">Crear cuenta</a>
+          <a class="button button-primary" routerLink="/login-clave" (click)="cerrarMenu()">Iniciar sesión</a>
+        } @else {
+          <button class="button button-primary" type="button" (click)="irAlPanel()">Ir al panel</button>
+          <button class="button button-secondary" type="button" (click)="cerrarSesion()">Cerrar sesión</button>
+        }
+      </div>
     </div>
   </nav>
 
   @if (mensajeError) {
-    <div class="error-msg">
-      {{ mensajeError }}
-    </div>
+    <div class="nav-alert" role="alert">{{ mensajeError }}</div>
   }
-</div>
+</header>

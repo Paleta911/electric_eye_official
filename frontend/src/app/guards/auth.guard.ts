@@ -1,36 +1,34 @@
 import { Injectable } from '@angular/core';
-import { CanActivate, Router, UrlTree } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
+import { CanActivate, Router, UrlTree } from '@angular/router';
 import { Observable, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
+import { API_ENDPOINTS } from '../core/config/api';
+import { AuthService } from '../services/auth.service';
 
-@Injectable({
-  providedIn: 'root'
-})
+type SessionResponse = { role: 'user' | 'admin'; servicioActivo: boolean };
+
+@Injectable({ providedIn: 'root' })
 export class AuthGuard implements CanActivate {
-  constructor(private http: HttpClient, private router: Router) {}
+  constructor(
+    private readonly http: HttpClient,
+    private readonly router: Router,
+    private readonly auth: AuthService
+  ) {}
 
   canActivate(): Observable<boolean | UrlTree> {
-    const token = localStorage.getItem('auth_token');
-    if (!token) {
-      return of(this.router.createUrlTree(['/']));
-    }
+    if (!this.auth.estaAutenticado()) return of(this.router.createUrlTree(['/login-clave']));
 
-    return this.http.get<any>('http://localhost:3000/api/usuarios/verificar-sesion', {
-  headers: {
-    Authorization: `Bearer ${token}`
-  }
-})
-.pipe(
-      map(res => {
-        if (res.servicioActivo) {
-          return true;
-        } else {
-          return this.router.createUrlTree(['/']);
-        }
+    return this.http.get<SessionResponse>(API_ENDPOINTS.verifySession).pipe(
+      map(session => {
+        this.auth.guardarSesion(this.auth.obtenerToken()!, session.role);
+        return session.servicioActivo
+          ? true
+          : this.router.createUrlTree(['/activar-servicio']);
       }),
-      catchError(err => {
-        return of(this.router.createUrlTree(['/']));
+      catchError(() => {
+        this.auth.eliminarSesion();
+        return of(this.router.createUrlTree(['/login-clave'], { queryParams: { sesion: 'expirada' } }));
       })
     );
   }

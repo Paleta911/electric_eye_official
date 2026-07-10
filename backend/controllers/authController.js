@@ -1,300 +1,222 @@
 const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
-const speakeasy = require('speakeasy');
+const crypto = require('crypto');
 const qrcode = require('qrcode');
+const speakeasy = require('speakeasy');
 const { getDB } = require('../utils/mongo');
-const { JWT_SECRET } = require('../middlewares/authMiddleware');
+const { signToken, verifyToken } = require('../middlewares/authMiddleware');
+const {
+  isValidEmail,
+  isValidPhone,
+  normalizeEmail,
+  normalizePhone,
+  passwordValidationMessage
+} = require('../utils/validation');
 
-const CLAVE_SIMPLE = process.env.ADMIN_ACCESS_KEY;
-
-if (!CLAVE_SIMPLE) {
-  throw new Error('ADMIN_ACCESS_KEY no está definida. Crea el archivo .env a partir de .env.example.');
-}
+const DUMMY_PASSWORD_HASH = '$2b$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2uheWG/igi.';
 
 async function login(req, res) {
   try {
-    const { email, phone, password } = req.body;
-    if ((!email && !phone) || !password) {
-      return res.status(400).json({ message: 'Email o teléfono y contraseña son requeridos.' });
+    const email = normalizeEmail(req.body.email);
+    const phone = normalizePhone(req.body.phone);
+    const password = typeof req.body.password === 'string' ? req.body.password : '';
+
+    if ((!email && !phone) || !password || (email && !isValidEmail(email)) || (phone && !isValidPhone(phone))) {
+      return res.status(400).json({ message: 'Introduce credenciales válidas.' });
     }
 
     const db = getDB();
-    let query = {};
+    const user = await db.collection('users').findOne(email ? { email } : { phone });
+    const passwordHash = user?.passwordHash || DUMMY_PASSWORD_HASH;
+    const isValid = await bcrypt.compare(password, passwordHash);
 
-    if (email) {
-      query = { email };
-    } else if (phone) {
-      query = { phone };
+    if (!user || !user.passwordHash || !isValid) {
+      return res.status(401).json({ message: 'Credenciales incorrectas.' });
     }
 
-    const user = await db.collection('users').findOne(query);
-    if (!user) {
-      return res.status(401).json({ message: 'Correo o teléfono no encontrado.' });
-    }
-
-    const hashed = user.passwordHash || user.password;
-    if (!hashed) {
-      console.error('El usuario no tiene campo de contraseña:', user);
-      return res.status(500).json({ message: 'El usuario no tiene contraseña almacenada.' });
-    }
-
-    const isValid = await bcrypt.compare(password, hashed);
-    if (!isValid) {
-      return res.status(401).json({ message: 'Contraseña incorrecta.' });
-    }
-
-    // Si tiene 2FA habilitado
+    const role = user.role || 'user';
     if (user.twofa?.enabled && user.twofa.secret) {
-      const tempToken = jwt.sign(
-        { email: user.email, phone: user.phone, role: user.role || 'user' },
-        JWT_SECRET,
+      const tempToken = signToken(
+        { email: user.email, purpose: '2fa' },
         { expiresIn: '5m' }
       );
-      return res.json({ message: '2FA requerido', twofa_required: true, tempToken });
+      return res.json({ message: 'Se requiere verificación en dos pasos.', twofa_required: true, tempToken });
     }
 
-    // Token normal
-    const token = jwt.sign(
-      { email: user.email, phone: user.phone, role: user.role || 'user' },
-      JWT_SECRET,
-      { expiresIn: '2h' }
-    );
-
-    res.json({
-      message: 'Inicio de sesión exitoso',
+    const token = signToken({ email: user.email, role });
+    return res.json({
+      message: 'Inicio de sesión exitoso.',
       token,
-      role: user.role || 'user',
+      role,
       servicioActivo: user.servicioActivo === true
     });
   } catch (error) {
-    console.error('❌ Error en login:', error);
-    res.status(500).json({ message: 'Error interno del servidor.' });
+    console.error('Error interno durante el inicio de sesión.');
+    return res.status(500).json({ message: 'No se pudo iniciar sesión.' });
   }
 }
 
-
-/**
- * Verificar token 2FA
- */
 async function verify2FA(req, res) {
-  const { tempToken, token } = req.body;
-  if (!tempToken || !token) {
-    return res.status(400).json({ message: 'Datos requeridos.' });
-  }
-
-  const decoded = jwt.verify(tempToken, JWT_SECRET);
-  const email = decoded.email;
-
-  const db = getDB();
-  const user = await db.collection('users').findOne({ email });
-  if (!user?.twofa?.enabled || !user.twofa.secret) {
-    return res.status(400).json({ message: '2FA no configurado.' });
-  }
-
-  const valid = speakeasy.totp.verify({
-    secret: user.twofa.secret,
-    encoding: 'base32',
-    token,
-    window: 0
-  });
-
-  if (!valid) {
-    return res.status(401).json({ message: 'Código inválido o expirado.' });
-  }
-
-  const jwtToken = jwt.sign(
-    { email, role: user.role || 'user' },
-    JWT_SECRET,
-    { expiresIn: '2h' }
-  );
-
-  res.json({ message: '2FA verificado', token: jwtToken, role: user.role || 'user' });
-}
-
-/**
- * Estado de 2FA
- */
-async function twofaStatus(req, res) {
-  const email = req.user.email;
-  const db = getDB();
-  const user = await db.collection('users').findOne({ email });
-  res.json({ enabled: !!(user?.twofa?.enabled && user?.twofa.secret) });
-}
-
-/**
- * Activar 2FA
- */
-async function activate2FA(req, res) {
-  const email = req.user.email;
-  const db = getDB();
-  const secret = speakeasy.generateSecret({ name: `ElectricEye (${email})` });
-
-  await db.collection('users').updateOne(
-    { email },
-    { $set: { 'twofa.tempSecret': secret.base32 } }
-  );
-
-  qrcode.toDataURL(secret.otpauth_url, (err, data_url) => {
-    if (err) return res.status(500).json({ message: 'Error generando QR' });
-    res.json({ qr: data_url });
-  });
-}
-
-/**
- * Confirmar 2FA
- */
-async function confirm2FA(req, res) {
-  const email = req.user.email;
-  const { token } = req.body;
-  if (!token) {
-    return res.status(400).json({ message: 'Código requerido.' });
-  }
-
-  const db = getDB();
-  const user = await db.collection('users').findOne({ email });
-  const tempSecret = user?.twofa?.tempSecret;
-  if (!tempSecret) {
-    return res.status(400).json({ message: 'No hay activación pendiente.' });
-  }
-
-  const verified = speakeasy.totp.verify({
-    secret: tempSecret,
-    encoding: 'base32',
-    token,
-    window: 0
-  });
-
-  if (!verified) {
-    return res.status(400).json({ message: 'Código inválido o expirado.' });
-  }
-
-  await db.collection('users').updateOne(
-    { email },
-    {
-      $set: { 'twofa.enabled': true, 'twofa.secret': tempSecret },
-      $unset: { 'twofa.tempSecret': '' }
+  try {
+    const tempToken = typeof req.body.tempToken === 'string' ? req.body.tempToken : '';
+    const token = typeof req.body.token === 'string' ? req.body.token.trim() : '';
+    if (!tempToken || !/^\d{6}$/.test(token)) {
+      return res.status(400).json({ message: 'Introduce un código de seis dígitos.' });
     }
+
+    const decoded = verifyToken(tempToken);
+    if (decoded.purpose !== '2fa' || !decoded.email) {
+      return res.status(401).json({ message: 'La verificación expiró. Inicia sesión nuevamente.' });
+    }
+
+    const db = getDB();
+    const user = await db.collection('users').findOne({ email: decoded.email });
+    if (!user?.twofa?.enabled || !user.twofa.secret) {
+      return res.status(400).json({ message: 'La cuenta no tiene 2FA configurado.' });
+    }
+
+    const valid = speakeasy.totp.verify({
+      secret: user.twofa.secret,
+      encoding: 'base32',
+      token,
+      window: 1
+    });
+    if (!valid) {
+      return res.status(401).json({ message: 'Código incorrecto o expirado.' });
+    }
+
+    const role = user.role || 'user';
+    return res.json({
+      message: 'Verificación completada.',
+      token: signToken({ email: user.email, role }),
+      role,
+      servicioActivo: user.servicioActivo === true
+    });
+  } catch (error) {
+    return res.status(401).json({ message: 'La verificación expiró. Inicia sesión nuevamente.' });
+  }
+}
+
+async function twofaStatus(req, res) {
+  const db = getDB();
+  const user = await db.collection('users').findOne(
+    { email: req.user.email },
+    { projection: { twofa: 1 } }
   );
-
-  res.json({ message: '2FA activado correctamente.' });
+  return res.json({ enabled: Boolean(user?.twofa?.enabled && user.twofa.secret) });
 }
 
-/**
- * Desactivar 2FA
- */
-async function deactivate2FA(req, res) {
-  const email = req.user.email;
-  const db = getDB();
-  await db.collection('users').updateOne(
-    { email },
-    { $unset: { twofa: '' } }
-  );
-  res.json({ message: '2FA desactivado.' });
-}
-
-/**
- * Registro de usuarios
- */
-async function register(req, res) {
-  const { email, password, role } = req.body;
-  if (!email || !password || !role) {
-    return res.status(400).json({ message: 'Todos los campos son requeridos.' });
-  }
-
-  if (!['user', 'admin'].includes(role)) {
-    return res.status(400).json({ message: 'Rol inválido.' });
-  }
-
-  const db = getDB();
-
-  const existingUser = await db.collection('users').findOne({ email });
-  if (existingUser) {
-    return res.status(409).json({ message: 'El correo ya está registrado.' });
-  }
-
-  const hashedPassword = await bcrypt.hash(password, 10);
-  const result = await db.collection('users').insertOne({
-    email,
-    passwordHash: hashedPassword,
-    role,
-    servicioActivo: false,
-    estadoCuenta: 'REGISTRADO',
-    claveActivacionUsada: null,
-    twoFactorSecret: null,
-    createdAt: new Date()
-  });
-
-  res.json({ message: 'Usuario registrado.', id: result.insertedId });
-}
-
-/**
- * Login con clave simple
- */
-function loginClave(req, res) {
-  const { clave } = req.body;
-  if (typeof clave !== 'string' || clave.trim() !== CLAVE_SIMPLE) {
-    return res.status(401).json({ message: 'Clave incorrecta.' });
-  }
-  res.json({ message: 'Clave correcta.' });
-}
-
-/**
- * Verificar si la sesión está activa y devolver servicioActivo
- */
-async function verificarSesion(req, res) {
-  const email = req.user.email;
-
-  const db = getDB();
-  const user = await db.collection('users').findOne({ email });
-
-  if (!user) {
-    return res.status(404).json({ message: 'Usuario no encontrado.' });
-  }
-
-  res.json({
-    email: user.email,
-    servicioActivo: user.servicioActivo === true
-  });
-}
-
-async function crearClave(req, res) {
+async function activate2FA(req, res) {
   try {
     const db = getDB();
-
-    const clave = [...Array(16)]
-      .map(() => Math.random().toString(36)[2])
-      .join('');
-
-    const nuevaClave = {
-      clave,
-      usada: false,
-      createdAt: new Date()
-    };
-
-    await db.collection('activationkeys').insertOne(nuevaClave);
-
-    res.json({
-      message: 'Clave creada correctamente',
-      clave: nuevaClave
-    });
-
+    const secret = speakeasy.generateSecret({ name: `Electric Eye (${req.user.email})`, length: 32 });
+    await db.collection('users').updateOne(
+      { email: req.user.email },
+      { $set: { 'twofa.tempSecret': secret.base32 } }
+    );
+    const qr = await qrcode.toDataURL(secret.otpauth_url);
+    return res.json({ qr });
   } catch (error) {
-    console.error('Error creando clave:', error);
-    res.status(500).json({ message: 'Error interno del servidor' });
+    return res.status(500).json({ message: 'No se pudo iniciar la configuración de 2FA.' });
   }
 }
 
+async function confirm2FA(req, res) {
+  try {
+    const token = typeof req.body.token === 'string' ? req.body.token.trim() : '';
+    if (!/^\d{6}$/.test(token)) {
+      return res.status(400).json({ message: 'Introduce un código de seis dígitos.' });
+    }
 
+    const db = getDB();
+    const user = await db.collection('users').findOne({ email: req.user.email });
+    const tempSecret = user?.twofa?.tempSecret;
+    if (!tempSecret) {
+      return res.status(400).json({ message: 'No existe una activación pendiente.' });
+    }
+
+    const verified = speakeasy.totp.verify({ secret: tempSecret, encoding: 'base32', token, window: 1 });
+    if (!verified) {
+      return res.status(400).json({ message: 'Código incorrecto o expirado.' });
+    }
+
+    await db.collection('users').updateOne(
+      { email: req.user.email },
+      {
+        $set: { 'twofa.enabled': true, 'twofa.secret': tempSecret },
+        $unset: { 'twofa.tempSecret': '' }
+      }
+    );
+    return res.json({ message: '2FA activado correctamente.' });
+  } catch (error) {
+    return res.status(500).json({ message: 'No se pudo confirmar 2FA.' });
+  }
+}
+
+async function deactivate2FA(req, res) {
+  try {
+    const db = getDB();
+    await db.collection('users').updateOne({ email: req.user.email }, { $unset: { twofa: '' } });
+    return res.json({ message: '2FA desactivado.' });
+  } catch (error) {
+    return res.status(500).json({ message: 'No se pudo desactivar 2FA.' });
+  }
+}
+
+async function registerManagedUser(req, res) {
+  try {
+    const email = normalizeEmail(req.body.email);
+    const phone = normalizePhone(req.body.phone);
+    const password = req.body.password;
+    const role = req.body.role === 'admin' ? 'admin' : 'user';
+    const passwordError = passwordValidationMessage(password);
+
+    if (!isValidEmail(email) || !isValidPhone(phone) || passwordError) {
+      return res.status(400).json({ message: passwordError || 'Correo o teléfono inválido.' });
+    }
+
+    const db = getDB();
+    const existing = await db.collection('users').findOne({ $or: [{ email }, { phone }] });
+    if (existing) return res.status(409).json({ message: 'El correo o teléfono ya está registrado.' });
+
+    const result = await db.collection('users').insertOne({
+      email,
+      phone,
+      passwordHash: await bcrypt.hash(password, 12),
+      role,
+      servicioActivo: false,
+      estadoCuenta: 'REGISTRADO',
+      claveActivacionUsada: null,
+      createdAt: new Date()
+    });
+    return res.status(201).json({ message: 'Usuario creado.', id: result.insertedId });
+  } catch (error) {
+    return res.status(500).json({ message: 'No se pudo crear el usuario.' });
+  }
+}
+
+async function createActivationKey(req, res) {
+  try {
+    const db = getDB();
+    const key = crypto.randomBytes(24).toString('base64url');
+    await db.collection('activationkeys').insertOne({
+      clave: key,
+      usada: false,
+      createdAt: new Date(),
+      createdBy: req.user.email
+    });
+    return res.status(201).json({ message: 'Clave creada correctamente.', clave: key });
+  } catch (error) {
+    return res.status(500).json({ message: 'No se pudo crear la clave.' });
+  }
+}
 
 module.exports = {
-  login,
-  verify2FA,
-  twofaStatus,
   activate2FA,
   confirm2FA,
+  createActivationKey,
   deactivate2FA,
-  register,
-  loginClave,
-  verificarSesion,
-  crearClave
+  login,
+  registerManagedUser,
+  twofaStatus,
+  verify2FA
 };

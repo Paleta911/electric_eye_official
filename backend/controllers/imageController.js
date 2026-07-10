@@ -1,67 +1,80 @@
-const { ObjectId } = require('mongodb');
+const { execFile } = require('child_process');
 const fs = require('fs');
+const os = require('os');
 const path = require('path');
-const { exec } = require('child_process');
-const { getBucket } = require('../utils/mongo');
+const crypto = require('crypto');
+const { ObjectId } = require('mongodb');
+const { config } = require('../config');
+const { verifyToken } = require('../middlewares/authMiddleware');
+const { getBucket, getDB } = require('../utils/mongo');
 
-const PORT = 3000;
+function parseObjectId(value) {
+  return ObjectId.isValid(value) ? new ObjectId(value) : null;
+}
 
-/**
- * Descargar imagen de GridFS
- */
 function getImagen(req, res) {
-  const bucket = getBucket();
-  const fileId = new ObjectId(req.params.id);
-  res.set('Content-Type', 'image/jpeg');
-  const downloadStream = bucket.openDownloadStream(fileId);
+  const fileId = parseObjectId(req.params.id);
+  if (!fileId) return res.status(400).json({ message: 'Identificador de imagen inválido.' });
 
-  downloadStream.on('error', () => res.status(404).json({ message: 'Imagen no encontrada' }));
-  downloadStream.pipe(res);
+  try {
+    const decoded = verifyToken(typeof req.query.token === 'string' ? req.query.token : '');
+    if (decoded.purpose !== 'image' || decoded.resource !== req.params.id) {
+      return res.status(401).json({ message: 'El enlace de imagen no es válido.' });
+    }
+  } catch (error) {
+    return res.status(401).json({ message: 'El enlace de imagen expiró o no es válido.' });
+  }
+
+  res.set({ 'Content-Type': 'image/jpeg', 'Cache-Control': 'private, max-age=60' });
+  const stream = getBucket().openDownloadStream(fileId);
+  stream.on('error', () => {
+    if (!res.headersSent) return res.status(404).json({ message: 'Imagen no encontrada.' });
+    return res.end();
+  });
+  return stream.pipe(res);
 }
 
-/**
- * Borrar imagen y sus registros
- */
 async function deleteImagen(req, res) {
-  const { getDB, getBucket } = require('../utils/mongo');
-  const id = new ObjectId(req.params.id);
-  const db = getDB();
-  const bucket = getBucket();
+  const id = parseObjectId(req.params.id);
+  if (!id) return res.status(400).json({ message: 'Identificador de imagen inválido.' });
 
-  await bucket.delete(id);
-  await db.collection('asistencias').deleteMany({ frame_id: id });
-  console.log(`🗑️ Imagen y registros eliminados para frame_id: ${id}`);
-  res.json({ message: 'Imagen eliminada correctamente' });
+  try {
+    await getBucket().delete(id);
+    await getDB().collection('asistencias').deleteMany({ frame_id: id });
+    return res.json({ message: 'Imagen eliminada correctamente.' });
+  } catch (error) {
+    return res.status(404).json({ message: 'Imagen no encontrada.' });
+  }
 }
 
-/**
- * Capturar snapshot
- */
 function snapshot(req, res) {
-  const camId = req.params.camId;
-  const rtspUrl = `rtsp://admin:Yuca99A.@192.168.1.73:554/cam/realmonitor?channel=${camId}&subtype=1`;
-  const outputPath = path.join(__dirname, `snapshot-${camId}.jpg`);
-  const ffmpegCmd = `ffmpeg -y -rtsp_transport tcp -i "${rtspUrl}" -frames:v 1 -q:v 2 "${outputPath}"`;
+  const camId = Number.parseInt(req.params.camId, 10);
+  if (!Number.isInteger(camId) || camId < 1 || camId > 32) {
+    return res.status(400).json({ message: 'Identificador de cámara inválido.' });
+  }
+  if (!config.cameraRtspUrl) {
+    return res.status(503).json({ message: 'La cámara no está configurada.' });
+  }
 
-  console.log(`📸 Solicitando snapshot de cámara ${camId}`);
-  exec(ffmpegCmd, (error) => {
+  const rtspUrl = config.cameraRtspUrl.replaceAll('{camId}', String(camId));
+  const outputPath = path.join(os.tmpdir(), `electric-eye-${crypto.randomUUID()}.jpg`);
+  const args = ['-y', '-rtsp_transport', 'tcp', '-i', rtspUrl, '-frames:v', '1', '-q:v', '2', outputPath];
+
+  return execFile('ffmpeg', args, { timeout: 15000, windowsHide: true }, error => {
     if (error) {
-      console.error('❌ Error al capturar snapshot:', error.message);
-      return res.status(500).json({ message: 'Error al capturar imagen', error: error.message });
+      fs.unlink(outputPath, () => {});
+      return res.status(502).json({ message: 'No se pudo obtener una imagen de la cámara.' });
     }
 
+    res.set({ 'Content-Type': 'image/jpeg', 'Cache-Control': 'no-store' });
     const stream = fs.createReadStream(outputPath);
-    res.setHeader('Content-Type', 'image/jpeg');
-    res.setHeader('Cache-Control', 'no-store');
-
-    stream.pipe(res);
-
-    stream.on('end', () => fs.unlink(outputPath, () => {}));
-    stream.on('error', (err) => {
-      console.error('❌ Error al leer imagen:', err.message);
-      res.status(500).send('Error al enviar imagen');
+    stream.on('close', () => fs.unlink(outputPath, () => {}));
+    stream.on('error', () => {
+      fs.unlink(outputPath, () => {});
+      if (!res.headersSent) res.status(500).json({ message: 'No se pudo leer la captura.' });
     });
+    return stream.pipe(res);
   });
 }
 
-module.exports = { getImagen, deleteImagen, snapshot };
+module.exports = { deleteImagen, getImagen, snapshot };

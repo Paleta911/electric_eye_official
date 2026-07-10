@@ -8,6 +8,7 @@
         type="text"
         class="form-control buscador-input ps-5"
         placeholder="Buscar por cámara o área"
+        aria-label="Buscar por cámara o área"
         [(ngModel)]="filtroTexto"
         />
     </div>
@@ -18,12 +19,26 @@
 
   <!-- Contenedor cartas + paginación -->
   <div class="cartas-wrapper">
+    @if (cargando) {
+      <div class="estado-panel" role="status">Cargando grabaciones…</div>
+    } @else if (error) {
+      <div class="estado-panel estado-error" role="alert">
+        {{ error }}
+        <button type="button" class="btn-minimal" (click)="recargarAsistencias()">Reintentar</button>
+      </div>
+    } @else if (asistenciasFiltradas.length === 0) {
+      <div class="estado-panel" role="status">
+        {{ asistencias.length === 0 ? 'Todavía no hay grabaciones.' : 'No hay resultados para esta búsqueda.' }}
+      </div>
+    } @else {
     <!-- Zona scrolleable -->
     <div class="cartas-scroll">
       @for (item of imagenesPaginadas; track item) {
         <div class="imagen-card shadow-sm">
           <div class="imagen-preview">
-            <img [src]="item.imagenUrl" alt="Captura de {{ item.camera }} - {{ item.area }}" />
+            @if (item.imagenUrl) {
+              <img [src]="item.imagenUrl" alt="Captura de {{ item.camera }} - {{ item.area }}" />
+            }
           </div>
           <div class="info p-3">
             <h6 class="fw-bold text-primary mb-2">{{ item.timestamp }}</h6>
@@ -34,13 +49,13 @@
               <i class="fas fa-map-marker-alt me-2"></i><strong>Área:</strong> {{ item.area }}
             </p>
             <div class="d-flex gap-2">
-              <button class="btn-minimal w-100" (click)="ampliarImagen(item.imagenUrl)">
+              <button class="btn-minimal w-100" [disabled]="!item.imagenUrl" (click)="item.imagenUrl && ampliarImagen(item.imagenUrl)">
                 <i class="fas fa-eye"></i> Ver
               </button>
-              <button class="btn-minimal w-100" (click)="descargarImagen(item.imagenUrl)">
+              <button class="btn-minimal w-100" [disabled]="!item.imagenUrl" (click)="item.imagenUrl && descargarImagen(item.imagenUrl)">
                 <i class="fas fa-download"></i> Descargar
               </button>
-              <button class="btn-minimal w-100" (click)="eliminarAsistencia(item.imagenUrl)">
+              <button class="btn-minimal w-100" [disabled]="!item.imagenUrl" (click)="item.imagenUrl && eliminarAsistencia(item.imagenUrl)">
                 <i class="fas fa-trash-alt"></i> Eliminar
               </button>
             </div>
@@ -59,13 +74,14 @@
         Siguiente →
       </button>
     </div>
+    }
   </div>
 
   <!-- Modal -->
   @if (imagenAmpliada) {
     <div class="modal" (click)="cerrarModal()">
       <img [src]="imagenAmpliada" alt="Vista ampliada" class="modal-img" />
-      <span class="cerrar">✖</span>
+      <button type="button" class="cerrar" aria-label="Cerrar imagen" (click)="cerrarModal()">✖</button>
     </div>
   }
 </div>

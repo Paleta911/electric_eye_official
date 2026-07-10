@@ -110,6 +110,29 @@ html {
   transform: scale(0.95); /* Pequeño efecto de presión */
 }
 
+@media (max-width: 600px) {
+  .banner {
+    min-height: 31rem;
+    height: auto;
+    padding: 3.5rem 1.25rem;
+    background-position: 58% center;
+  }
+
+  .content-banner h2 {
+    font-size: clamp(2.4rem, 11vw, 3.3rem);
+    line-height: 1.08;
+  }
+
+  .content-banner p {
+    font-size: 1.15rem;
+  }
+
+  .btn-discover {
+    font-size: 1.1rem;
+    padding: 0.85rem 1.25rem;
+  }
+}
+
 
 
 
@@ -850,7 +873,6 @@ text-align: justify;
   border-radius: 1rem;
   display: block;
 }
-
 
 
 

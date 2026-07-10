@@ -1,85 +1,74 @@
-<div class="key-wrapper">
-  <!-- Fondo animado -->
-  <div class="animated-background">
-    @for (icon of iconos; track icon) {
-      <i
-        class="fas floating-icon"
-        [ngClass]="icon.class"
-        [style.left.%]="icon.left"
-        [style.animationDuration.s]="icon.duration"
-        [style.animationDelay.s]="icon.delay"
-        [style.fontSize.px]="icon.size"
-      ></i>
+<main class="auth-page">
+  <div class="animated-background" aria-hidden="true">
+    @for (icon of iconos; track $index) {
+      <i class="fas floating-icon" [ngClass]="icon.class"
+        [style.left.%]="icon.left" [style.animationDuration.s]="icon.duration"
+        [style.animationDelay.s]="icon.delay" [style.fontSize.px]="icon.size"></i>
     }
   </div>
 
-  <!-- Tarjeta de registro -->
-  <div class="key-glass animate-entry">
-    <img src="assets/logo.png" alt="Logo" class="key-logo" />
+  <section class="auth-card" aria-labelledby="register-title">
+    <a routerLink="/" class="brand-link" aria-label="Volver al inicio de Electric Eye">
+      <img src="assets/logo.png" alt="" class="auth-logo" />
+      <span>Electric Eye</span>
+    </a>
+    <h1 id="register-title">Crear una cuenta</h1>
+    <p class="auth-subtitle">Tus datos se utilizarán para identificar tu acceso al sistema.</p>
 
-    <h2 class="key-title">Crear una cuenta</h2>
-    <p class="key-subtitle">Rellena los campos para registrarte</p>
-
-    <!-- Email -->
-    <div class="input-icon-wrapper mb-3">
-      <i class="fas fa-envelope input-icon"></i>
-      <input
-        type="email"
-        class="key-input"
-        placeholder="Correo electrónico"
-        [(ngModel)]="form.email"
-        name="email"
-        required
-        />
-    </div>
-
-    <!-- Número de celular -->
-    <div class="input-icon-wrapper mb-3">
-      <i class="fas fa-phone input-icon"></i>
-      <input
-        type="tel"
-        class="key-input"
-        placeholder="Número de celular"
-        [(ngModel)]="form.phone"
-        name="phone"
-        required
-        />
-    </div>
-
-
-    <!-- Contraseña -->
-    <div class="input-icon-wrapper">
-      <i class="fas fa-lock input-icon"></i>
-      <input
-        [type]="mostrarClave ? 'text' : 'password'"
-        class="key-input"
-        placeholder="Contraseña"
-        [(ngModel)]="form.password"
-        name="password"
-        required
-        />
-      <i
-        class="fas toggle-eye"
-        [ngClass]="mostrarClave ? 'fa-eye-slash' : 'fa-eye'"
-        (click)="mostrarClave = !mostrarClave"
-      ></i>
-    </div>
-
-    <!-- Mensaje de error o éxito -->
-    @if (mensaje) {
-      <div class="error-message mt-3">
-        {{ mensaje }}
+    <form class="auth-form" (ngSubmit)="registrar()" novalidate>
+      <div class="form-field">
+        <label for="register-email">Correo electrónico</label>
+        <div class="input-icon-wrapper">
+          <i class="fas fa-envelope input-icon" aria-hidden="true"></i>
+          <input id="register-email" type="email" class="auth-input"
+            [(ngModel)]="form.email" name="email" autocomplete="email" required />
+        </div>
       </div>
-    }
 
-    <!-- Botón de registro -->
-    <button class="btn-ingresar mt-3" (click)="registrar()">
-      <i class="fas fa-user-plus me-2"></i> Registrarse
-    </button>
+      <div class="form-field">
+        <label for="register-phone">Número de teléfono</label>
+        <div class="input-icon-wrapper">
+          <i class="fas fa-phone input-icon" aria-hidden="true"></i>
+          <input id="register-phone" type="tel" class="auth-input"
+            [(ngModel)]="form.phone" name="phone" autocomplete="tel"
+            inputmode="tel" minlength="7" maxlength="20" required />
+        </div>
+      </div>
 
-    <!-- Botón volver al inicio -->
-    <button class="btn-volver-inicio mt-3" (click)="irAlInicio()">
-      <i class="fas fa-home me-1"></i> Volver al inicio
-    </button>
-  </div>
-</div>
+      <div class="form-field">
+        <label for="register-password">Contraseña</label>
+        <div class="input-icon-wrapper">
+          <i class="fas fa-lock input-icon" aria-hidden="true"></i>
+          <input id="register-password" [type]="mostrarClave ? 'text' : 'password'"
+            class="auth-input has-action" [(ngModel)]="form.password" name="password"
+            autocomplete="new-password" minlength="10" required />
+          <button type="button" class="input-action" (click)="mostrarClave = !mostrarClave"
+            [attr.aria-label]="mostrarClave ? 'Ocultar contraseñas' : 'Mostrar contraseñas'">
+            <i class="fas" [ngClass]="mostrarClave ? 'fa-eye-slash' : 'fa-eye'" aria-hidden="true"></i>
+          </button>
+        </div>
+        <small>Al menos 10 caracteres, una letra y un número.</small>
+      </div>
+
+      <div class="form-field">
+        <label for="confirm-password">Confirmar contraseña</label>
+        <div class="input-icon-wrapper">
+          <i class="fas fa-lock input-icon" aria-hidden="true"></i>
+          <input id="confirm-password" [type]="mostrarClave ? 'text' : 'password'"
+            class="auth-input" [(ngModel)]="form.confirmPassword" name="confirmPassword"
+            autocomplete="new-password" required />
+        </div>
+      </div>
+
+      @if (mensaje) {
+        <div class="status-message status-error" role="alert">{{ mensaje }}</div>
+      }
+
+      <button class="primary-action" type="submit" [disabled]="cargando">
+        {{ cargando ? 'Creando cuenta…' : 'Crear cuenta' }}
+      </button>
+    </form>
+
+    <p class="auth-footer">¿Ya tienes una cuenta? <a routerLink="/login-clave">Inicia sesión</a></p>
+  </section>
+</main>

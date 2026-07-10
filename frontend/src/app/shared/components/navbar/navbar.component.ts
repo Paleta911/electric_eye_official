@@ -5,6 +5,7 @@ import {
 } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { AuthService } from '../../../services/auth.service';
 
 @Component({
   selector: 'app-navbar',
@@ -17,11 +18,13 @@ export class NavbarComponent implements OnInit, OnDestroy {
   fechaActual: string = '';
   mostrarMenuUsuario = false;
   modoOscuro: boolean = false;
-  private intervalo: any;
+  private intervalo?: ReturnType<typeof setInterval>;
 
-  constructor(private router: Router) {}
+  constructor(private router: Router, private auth: AuthService) {}
 
   ngOnInit() {
+    this.modoOscuro = localStorage.getItem('ui_theme') === 'dark';
+    document.body.classList.toggle('dark-mode', this.modoOscuro);
     this.actualizarFecha();
     this.intervalo = setInterval(() => this.actualizarFecha(), 1000);
   }
@@ -40,13 +43,12 @@ export class NavbarComponent implements OnInit, OnDestroy {
   }
 
   cerrarSesion() {
-    console.log('Sesión cerrada');
-    localStorage.removeItem('auth_token');
+    this.auth.eliminarSesion();
     this.router.navigateByUrl('/');
   }
 
   abrirConfiguracion() {
-    const role = localStorage.getItem('user_role');
+    const role = this.auth.obtenerRol();
     if (role === 'admin') {
       this.router.navigate(['/panel-admin']);
     } else {
@@ -57,13 +59,14 @@ export class NavbarComponent implements OnInit, OnDestroy {
   toggleTema() {
     this.modoOscuro = !this.modoOscuro;
     document.body.classList.toggle('dark-mode', this.modoOscuro);
-  }
-
-  recargarDatos() {
-    console.log('🔄 Datos actualizados manualmente');
+    localStorage.setItem('ui_theme', this.modoOscuro ? 'dark' : 'light');
   }
 
   irAlInicio() {
     this.router.navigate(['/']);
+  }
+
+  get nombreUsuario(): string {
+    return this.auth.obtenerRol() === 'admin' ? 'Administrador' : 'Usuario';
   }
 }

@@ -1,56 +1,42 @@
-<div class="key-wrapper">
-  <!-- Fondo animado -->
-  <div class="animated-background">
-    @for (icon of iconos; track icon) {
-      <i
-        class="fas floating-icon"
-        [ngClass]="icon.class"
-        [style.left.%]="icon.left"
-        [style.animationDuration.s]="icon.duration"
-        [style.animationDelay.s]="icon.delay"
-        [style.fontSize.px]="icon.size"
-      ></i>
+<main class="auth-page">
+  <div class="animated-background" aria-hidden="true">
+    @for (icon of iconos; track $index) {
+      <i class="fas floating-icon" [ngClass]="icon.class"
+        [style.left.%]="icon.left" [style.animationDuration.s]="icon.duration"
+        [style.animationDelay.s]="icon.delay" [style.fontSize.px]="icon.size"></i>
     }
   </div>
 
-  <!-- Tarjeta de activación -->
-  <div class="key-glass animate-entry">
-    <img src="assets/logo.png" alt="Logo" class="key-logo" />
+  <section class="auth-card" aria-labelledby="activation-title">
+    <a routerLink="/" class="brand-link" aria-label="Volver al inicio de Electric Eye">
+      <img src="assets/logo.png" alt="" class="auth-logo" />
+      <span>Electric Eye</span>
+    </a>
+    <h1 id="activation-title">Activar servicio</h1>
+    <p class="auth-subtitle">Vincula tu cuenta con una clave de un solo uso.</p>
 
-    <h2 class="key-title">Activar servicio</h2>
-    <p class="key-subtitle">Ingresa tu clave de activación</p>
+    <div class="status-message status-info" role="status">{{ aviso }}</div>
 
-    <form (ngSubmit)="activar()">
-      <!-- Campo clave de activación -->
-      <div class="input-icon-wrapper mb-3">
-        <i class="fas fa-key input-icon"></i>
-        <input
-          type="text"
-          class="key-input"
-          placeholder="Clave de activación"
-          [(ngModel)]="clave"
-          name="clave"
-          [disabled]="cargando"
-          />
+    <form class="auth-form" (ngSubmit)="activar()">
+      <div class="form-field">
+        <label for="activation-key">Clave de activación</label>
+        <div class="input-icon-wrapper">
+          <i class="fas fa-key input-icon" aria-hidden="true"></i>
+          <input id="activation-key" type="text" class="auth-input code-input"
+            [(ngModel)]="clave" name="clave" autocomplete="off"
+            [disabled]="cargando" maxlength="64" required autofocus />
+        </div>
       </div>
 
-      <!-- Mensaje -->
       @if (mensaje) {
-        <div class="error-message mt-3">
-          {{ mensaje }}
-        </div>
+        <div class="status-message" [ngClass]="exito ? 'status-success' : 'status-error'"
+          [attr.role]="exito ? 'status' : 'alert'">{{ mensaje }}</div>
       }
 
-      <!-- Botón de activar -->
-      <button type="submit" class="btn-ingresar mt-3" [disabled]="cargando">
-        <i class="fas fa-check-circle me-2"></i> Activar servicio
+      <button type="submit" class="primary-action" [disabled]="cargando">
+        {{ cargando ? 'Activando…' : 'Activar servicio' }}
       </button>
-
-      <!-- Botón volver al inicio -->
-      <button class="btn-volver-inicio mt-3" (click)="irAlInicio()">
-        <i class="fas fa-home me-1"></i> Volver al inicio
-      </button>
-
+      <button type="button" class="secondary-action" (click)="cerrarSesion()">Cerrar sesión</button>
     </form>
-  </div>
-</div>
+  </section>
+</main>

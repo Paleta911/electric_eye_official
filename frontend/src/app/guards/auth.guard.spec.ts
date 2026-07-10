@@ -1,80 +1,63 @@
-import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
+import { TestBed } from '@angular/core/testing';
 import { Router, UrlTree, provideRouter } from '@angular/router';
-
+import { API_ENDPOINTS } from '../core/config/api';
+import { AuthService } from '../services/auth.service';
 import { AuthGuard } from './auth.guard';
 
 describe('AuthGuard', () => {
   let guard: AuthGuard;
-  let httpTesting: HttpTestingController;
+  let http: HttpTestingController;
   let router: Router;
+  let auth: AuthService;
 
   beforeEach(() => {
     localStorage.clear();
     TestBed.configureTestingModule({
-      providers: [
-        AuthGuard,
-        provideRouter([]),
-        provideHttpClient(),
-        provideHttpClientTesting()
-      ]
+      providers: [AuthGuard, provideRouter([]), provideHttpClient(), provideHttpClientTesting()]
     });
-
     guard = TestBed.inject(AuthGuard);
-    httpTesting = TestBed.inject(HttpTestingController);
+    http = TestBed.inject(HttpTestingController);
     router = TestBed.inject(Router);
+    auth = TestBed.inject(AuthService);
   });
 
-  afterEach(() => {
-    httpTesting.verify();
-    localStorage.clear();
-  });
+  afterEach(() => { http.verify(); localStorage.clear(); });
 
-  it('redirects to the landing page when there is no token', (done) => {
-    guard.canActivate().subscribe((result) => {
-      expect(result instanceof UrlTree).toBeTrue();
-      expect(router.serializeUrl(result as UrlTree)).toBe('/');
+  it('redirects to login when there is no token', done => {
+    guard.canActivate().subscribe(result => {
+      expect(router.serializeUrl(result as UrlTree)).toBe('/login-clave');
       done();
     });
   });
 
-  it('allows access when the service is active', (done) => {
-    localStorage.setItem('auth_token', 'test-token');
-
-    guard.canActivate().subscribe((result) => {
+  it('allows an active session and refreshes its role', done => {
+    auth.guardarToken('test-token');
+    guard.canActivate().subscribe(result => {
       expect(result).toBeTrue();
+      expect(auth.obtenerRol()).toBe('user');
       done();
     });
-
-    const request = httpTesting.expectOne('http://localhost:3000/api/usuarios/verificar-sesion');
-    expect(request.request.headers.get('Authorization')).toBe('Bearer test-token');
-    request.flush({ servicioActivo: true });
+    http.expectOne(API_ENDPOINTS.verifySession).flush({ role: 'user', servicioActivo: true });
   });
 
-  it('redirects when the service is inactive', (done) => {
-    localStorage.setItem('auth_token', 'test-token');
-
-    guard.canActivate().subscribe((result) => {
-      expect(result instanceof UrlTree).toBeTrue();
-      expect(router.serializeUrl(result as UrlTree)).toBe('/');
+  it('sends inactive accounts to activation', done => {
+    auth.guardarToken('test-token');
+    guard.canActivate().subscribe(result => {
+      expect(router.serializeUrl(result as UrlTree)).toBe('/activar-servicio');
       done();
     });
-
-    httpTesting.expectOne('http://localhost:3000/api/usuarios/verificar-sesion')
-      .flush({ servicioActivo: false });
+    http.expectOne(API_ENDPOINTS.verifySession).flush({ role: 'user', servicioActivo: false });
   });
 
-  it('redirects when session validation fails', (done) => {
-    localStorage.setItem('auth_token', 'test-token');
-
-    guard.canActivate().subscribe((result) => {
-      expect(result instanceof UrlTree).toBeTrue();
-      expect(router.serializeUrl(result as UrlTree)).toBe('/');
+  it('clears an invalid session and redirects to login', done => {
+    auth.guardarSesion('test-token', 'user');
+    guard.canActivate().subscribe(result => {
+      expect(router.serializeUrl(result as UrlTree)).toBe('/login-clave?sesion=expirada');
+      expect(auth.estaAutenticado()).toBeFalse();
       done();
     });
-
-    httpTesting.expectOne('http://localhost:3000/api/usuarios/verificar-sesion')
-      .flush('Unauthorized', { status: 401, statusText: 'Unauthorized' });
+    http.expectOne(API_ENDPOINTS.verifySession).flush({}, { status: 401, statusText: 'Unauthorized' });
   });
 });

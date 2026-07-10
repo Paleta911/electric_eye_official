@@ -1,8 +1,9 @@
-import { Component } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { Component, OnInit } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { Router, RouterModule } from '@angular/router';
+import { API_ENDPOINTS } from '../../core/config/api';
 import { AuthService } from '../../services/auth.service';
 
 @Component({
@@ -10,116 +11,68 @@ import { AuthService } from '../../services/auth.service';
   standalone: true,
   templateUrl: './resgistro.component.html',
   styleUrls: ['./resgistro.component.css'],
-  imports: [
-    FormsModule,
-    HttpClientModule,
-    CommonModule
-  ],
+  imports: [FormsModule, CommonModule, RouterModule]
 })
-export class ResgistroComponent {
-  form = {
-    email: '',
-    phone: '',
-    password: ''
-  };
-
-  mensaje: string = '';
+export class ResgistroComponent implements OnInit {
+  form = { email: '', phone: '', password: '', confirmPassword: '' };
+  mensaje = '';
+  cargando = false;
   mostrarClave = false;
-
   iconos: IconoAnimado[] = [];
 
   constructor(
-    private http: HttpClient,
-    private router: Router,
-    private authService: AuthService
+    private readonly http: HttpClient,
+    private readonly router: Router,
+    private readonly auth: AuthService
   ) {}
 
   ngOnInit(): void {
-    const clases = [
-      'fa-camera',
-      'fa-eye',
-      'fa-lock',
-      'fa-video',
-      'fa-key',
-      'fa-shield-alt'
-    ];
-    for (let i = 0; i < 40; i++) {
-      this.iconos.push({
-        class: clases[Math.floor(Math.random() * clases.length)],
-        left: Math.random() * 100,
-        duration: 6 + Math.random() * 6,
-        delay: Math.random() * 5,
-        size: 16 + Math.random() * 20
-      });
+    this.iconos = createBackgroundIcons();
+  }
+
+  registrar(): void {
+    if (this.cargando) return;
+    this.mensaje = this.validateForm();
+    if (this.mensaje) return;
+
+    this.cargando = true;
+    const { confirmPassword: _confirmPassword, ...payload } = this.form;
+    this.http.post<{ token: string; role: 'user' }>(API_ENDPOINTS.register, payload).subscribe({
+      next: response => {
+        this.auth.guardarSesion(response.token, response.role);
+        void this.router.navigate(['/activar-servicio'], {
+          state: { notice: 'Cuenta creada. Solicita tu clave de activación al administrador.' }
+        });
+      },
+      error: error => this.handleError(error)
+    });
+  }
+
+  private validateForm(): string {
+    const email = this.form.email.trim();
+    const phone = this.form.phone.replace(/[\s()+.-]/g, '');
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return 'Introduce un correo electrónico válido.';
+    if (!/^\d{7,15}$/.test(phone)) return 'Introduce un teléfono de 7 a 15 dígitos.';
+    if (this.form.password.length < 10 || !/[A-Za-zÁÉÍÓÚáéíóúÑñ]/.test(this.form.password) || !/\d/.test(this.form.password)) {
+      return 'La contraseña debe tener al menos 10 caracteres, una letra y un número.';
     }
+    if (this.form.password !== this.form.confirmPassword) return 'Las contraseñas no coinciden.';
+    this.form.email = email;
+    this.form.phone = phone;
+    return '';
   }
 
-  registrar() {
-  console.log("🟦 BOTÓN REGISTRARSE PRESIONADO");
-  console.log("📤 Datos del formulario:", this.form);
-
-  this.mensaje = '';
-
-  if (!this.form.email || !this.form.password || !this.form.phone) {
-    console.log("❌ Faltan campos");
-    this.mensaje = 'Por favor completa todos los campos.';
-    return;
-  }
-
-  console.log("📡 ENVIANDO POST a: http://localhost:3000/api/usuarios/registrar");
-
-  this.http.post<any>('http://localhost:3000/api/usuarios/registrar', this.form)
-    .subscribe({
-      next: res => {
-        console.log("✅ REGISTRO OK:", res);
-
-        // Guardamos token
-        this.authService.guardarToken(res.token);
-
-        // 🚀 **CREA LA CLAVE AUTOMÁTICAMENTE**
-        this.crearClave();
-
-        this.mensaje = 'Registro exitoso.';
-
-        if (res.servicioActivo) {
-          this.router.navigate(['/activar-servicio']);
-        } else {
-          this.router.navigate(['/activar-servicio']);
-        }
-      },
-      error: err => {
-        console.error("❌ ERROR AL REGISTRAR:", err.error);
-        this.mensaje = err.error?.message || 'Error al registrar.';
-      }
-    });
-}
-
-
-crearClave() {
-  console.log("🟦 Creando clave de activación...");
-
-  this.http.post<any>('http://localhost:3000/api/usuarios/crear-clave', {})
-    .subscribe({
-      next: res => {
-        console.log("🔑 Clave creada correctamente:", res.clave);
-      },
-      error: err => {
-        console.error("❌ Error al crear clave:", err.error);
-      }
-    });
-}
-
-
-
-  irAlInicio() {
-    this.router.navigate(['/']);
+  private handleError(error: HttpErrorResponse): void {
+    this.cargando = false;
+    this.mensaje = typeof error.error?.message === 'string' ? error.error.message : 'No se pudo crear la cuenta.';
   }
 }
 
-interface IconoAnimado {
-  class: string;
-  left: number;
-  duration: number;
-  delay: number;
-  size: number;
+interface IconoAnimado { class: string; left: number; duration: number; delay: number; size: number }
+function createBackgroundIcons(): IconoAnimado[] {
+  const classes = ['fa-camera', 'fa-eye', 'fa-lock', 'fa-video', 'fa-key', 'fa-shield-alt'];
+  return Array.from({ length: 24 }, (_, index) => ({
+    class: classes[index % classes.length], left: (index * 37) % 100,
+    duration: 9 + (index % 5), delay: -(index % 8), size: 16 + (index % 4) * 4
+  }));
 }

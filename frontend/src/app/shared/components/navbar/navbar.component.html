@@ -1,47 +1,31 @@
 <header class="navbar">
   <div class="left-section">
-    <span class="fecha-completa">{{ fechaActual }}</span>
+    <time class="fecha-completa">{{ fechaActual }}</time>
   </div>
 
   <div class="right-section">
-    <i
-      class="fas fa-sync-alt recargar-icono"
-      title="Refrescar datos"
-      (click)="recargarDatos()"
-    ></i>
-
-    <div class="idioma-selector">
-      <i class="fas fa-globe"></i>
-      <select>
-        <option value="es">ES</option>
-        <option value="en">EN</option>
-      </select>
-    </div>
-
-    <div
-      class="tema-toggle"
-      (click)="toggleTema()"
-      [title]="modoOscuro ? 'Tema claro' : 'Tema oscuro'"
-      >
-      <i class="fas" [ngClass]="modoOscuro ? 'fa-sun' : 'fa-moon'"></i>
-    </div>
-
-    <i class="fas fa-bell notificaciones-icono" title="Notificaciones"></i>
-
-    <!-- NUEVO BOTÓN "Ir al Inicio" -->
-    <button class="btn-ir-inicio" (click)="irAlInicio()">
-      <i class="fas fa-home"></i> Ir al Inicio
+    <button type="button" class="tema-toggle" (click)="toggleTema()"
+      [attr.aria-label]="modoOscuro ? 'Activar tema claro' : 'Activar tema oscuro'"
+      [title]="modoOscuro ? 'Tema claro' : 'Tema oscuro'">
+      <i class="fas" [ngClass]="modoOscuro ? 'fa-sun' : 'fa-moon'" aria-hidden="true"></i>
     </button>
 
-    <div class="usuario" (click)="toggleMenuUsuario()">
-      <span class="nombre-usuario">admin</span>
-      <i class="fas fa-user-circle avatar-icon"></i>
-      <i class="fas fa-chevron-down flecha"></i>
+    <button type="button" class="btn-ir-inicio" (click)="irAlInicio()">
+      <i class="fas fa-home" aria-hidden="true"></i> Ir al inicio
+    </button>
+
+    <div class="usuario">
+      <button type="button" class="usuario-trigger" (click)="toggleMenuUsuario()"
+        [attr.aria-expanded]="mostrarMenuUsuario" aria-haspopup="menu">
+        <span class="nombre-usuario">{{ nombreUsuario }}</span>
+        <i class="fas fa-user-circle avatar-icon" aria-hidden="true"></i>
+        <i class="fas fa-chevron-down flecha" aria-hidden="true"></i>
+      </button>
 
       @if (mostrarMenuUsuario) {
-        <div class="menu-usuario">
-          <div (click)="abrirConfiguracion()">⚙ Configuración</div>
-          <div (click)="cerrarSesion()">🔓 Cerrar sesión</div>
+        <div class="menu-usuario" role="menu">
+          <button type="button" role="menuitem" (click)="abrirConfiguracion()">⚙ Configuración</button>
+          <button type="button" role="menuitem" (click)="cerrarSesion()">Cerrar sesión</button>
         </div>
       }
     </div>

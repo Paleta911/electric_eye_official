@@ -5,6 +5,7 @@
       <div class="form-group mb-0 position-relative buscador-asistencia" style="width: 400px;">
         <i class="fas fa-search icono-lupa-asistencia position-absolute"></i>
         <input
+          aria-label="Buscar por nombre o puesto"
           type="text"
           class="form-control buscador-input ps-5"
           placeholder="Buscar por nombre o puesto"
@@ -13,14 +14,14 @@
       </div>
     </div>
     <div class="form-group mb-0">
-      <select class="form-select" [(ngModel)]="filtroEstado">
+      <select class="form-select" aria-label="Filtrar por estado" [(ngModel)]="filtroEstado" (ngModelChange)="paginaActual = 1">
         <option value="">Todos</option>
         <option value="Presente">Presente</option>
         <option value="Ausente">Ausente</option>
       </select>
     </div>
     <div class="form-group mb-0">
-      <input type="date" class="form-control" [(ngModel)]="filtroFecha" />
+      <input type="date" class="form-control" aria-label="Filtrar por fecha" [(ngModel)]="filtroFecha" (ngModelChange)="paginaActual = 1" />
     </div>
   </div>
 
@@ -40,7 +41,21 @@
     </div>
   </div>
 
-  <!-- Contenedor tabla y paginación -->
+  @if (cargando) {
+    <div class="alert alert-info text-center" role="status">
+      <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
+      Cargando registros…
+    </div>
+  } @else if (error) {
+    <div class="alert alert-danger d-flex flex-wrap justify-content-between align-items-center gap-3" role="alert">
+      <span>{{ error }}</span>
+      <button type="button" class="btn btn-sm btn-outline-danger" (click)="cargar()">Reintentar</button>
+    </div>
+  } @else if (rostrosFiltrados.length === 0) {
+    <div class="alert alert-light border text-center" role="status">
+      {{ rostros.length === 0 ? 'Todavía no hay registros de asistencia.' : 'No hay resultados para los filtros seleccionados.' }}
+    </div>
+  } @else {
   <div class="tabla-wrapper">
     <div class="tabla-scroll">
       <table class="table table-hover align-middle rounded shadow-sm overflow-hidden">
@@ -57,12 +72,13 @@
           @for (rostro of paginaDatos; track rostro) {
             <tr class="text-center">
               <td>
-                <img
-                  [src]="rostro.rostroUrl"
-                  alt="Rostro"
-                  class="miniatura"
-                  (click)="ampliarImagen(rostro.rostroUrl)"
-                  />
+                @if (rostro.rostroUrl) {
+                  <button type="button" class="miniatura-button" (click)="ampliarImagen(rostro.rostroUrl)" [attr.aria-label]="'Ampliar foto de ' + rostro.nombre">
+                    <img [src]="rostro.rostroUrl" [alt]="'Rostro de ' + rostro.nombre" class="miniatura" />
+                  </button>
+                } @else {
+                  <span aria-label="Sin fotografía">—</span>
+                }
               </td>
               <td>{{ rostro.nombre }}</td>
               <td>{{ rostro.puesto }}</td>
@@ -93,19 +109,13 @@
       </button>
     </div>
   </div>
+  }
 
   <!-- Modal de imagen -->
   @if (imagenAmpliada) {
-    <div class="modal" (click)="cerrarModal()">
-      <img [src]="imagenAmpliada" class="modal-img" />
-      <span class="cerrar">✖</span>
-    </div>
-  }
-
-  <!-- Error de conexión -->
-  @if (mostrarErrorConexion) {
-    <div class="error-conexion">
-      <div class="alert alert-danger">Error de conexión con el servidor</div>
+    <div class="modal" role="dialog" aria-modal="true" aria-label="Vista ampliada de fotografía" (click)="cerrarModal()">
+      <img [src]="imagenAmpliada" alt="Fotografía ampliada" class="modal-img" />
+      <button type="button" class="cerrar" aria-label="Cerrar imagen" (click)="cerrarModal()">✖</button>
     </div>
   }
 </div>

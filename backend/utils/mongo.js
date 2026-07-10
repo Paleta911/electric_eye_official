@@ -1,46 +1,58 @@
 const { MongoClient, GridFSBucket } = require('mongodb');
-
-const uri = process.env.MONGO_URI;
-const dbName = process.env.MONGO_DB_NAME || 'video_database';
+const { config } = require('../config');
 
 let db;
 let bucket;
 let clientInstance;
 
+async function ensureIndexes() {
+  await Promise.all([
+    db.collection('users').createIndex(
+      { email: 1 },
+      { unique: true, partialFilterExpression: { email: { $type: 'string' } } }
+    ),
+    db.collection('users').createIndex(
+      { phone: 1 },
+      { unique: true, sparse: true }
+    ),
+    db.collection('activationkeys').createIndex({ clave: 1 }, { unique: true }),
+    db.collection('activationkeys').createIndex({ createdAt: -1 }),
+    db.collection('rostros_detectados').createIndex({ timestamp: -1 }),
+    db.collection('asistencias').createIndex({ timestamp: -1 })
+  ]);
+}
+
 async function connectDB() {
-  if (db) {
-    console.log('ℹ️ La base de datos ya está inicializada.');
-    return;
-  }
-
-  if (!uri) {
-    throw new Error('MONGO_URI no está definida. Crea el archivo .env a partir de .env.example.');
-  }
-
-  clientInstance = await MongoClient.connect(uri);
-
-  db = clientInstance.db(dbName);
+  if (db) return db;
+  clientInstance = new MongoClient(config.mongoUri, { serverSelectionTimeoutMS: 5000 });
+  await clientInstance.connect();
+  db = clientInstance.db(config.mongoDbName);
   bucket = new GridFSBucket(db, { bucketName: 'fs' });
-
-  console.log('🟢 Conectado a MongoDB y GridFS listo');
+  await ensureIndexes();
+  return db;
 }
 
 function getDB() {
-  if (!db) throw new Error('❌ La base de datos no está inicializada. Llama a connectDB() primero.');
+  if (!db) throw new Error('La base de datos no está inicializada.');
   return db;
 }
 
 function getBucket() {
-  if (!bucket) throw new Error('❌ El bucket de GridFS no está inicializado.');
+  if (!bucket) throw new Error('GridFS no está inicializado.');
   return bucket;
 }
 
-process.on('SIGINT', async () => {
-  if (clientInstance) {
-    await clientInstance.close();
-    console.log('🔴 Conexión a MongoDB cerrada.');
-  }
-  process.exit(0);
-});
+async function isHealthy() {
+  if (!db) return false;
+  await db.command({ ping: 1 });
+  return true;
+}
 
-module.exports = { connectDB, getDB, getBucket };
+async function closeDB() {
+  if (clientInstance) await clientInstance.close();
+  clientInstance = undefined;
+  db = undefined;
+  bucket = undefined;
+}
+
+module.exports = { closeDB, connectDB, getBucket, getDB, isHealthy };

@@ -2,13 +2,21 @@
   <h2 class="fw-bold text-primary mb-3 text-center">Cámara #{{ camaraId }}</h2>
 
   <div class="video-wrapper mx-auto shadow rounded-4 overflow-hidden mb-4">
+    @if (cargando) {
+      <div class="video-status" role="status">
+        <span class="spinner-border" aria-hidden="true"></span>
+        Conectando con la cámara…
+      </div>
+    }
+    @if (error) {
+      <div class="video-status video-error" role="alert">{{ error }}</div>
+    }
     <video #videoPlayer controls autoplay class="w-100 h-100"></video>
   </div>
 
   <div class="text-center">
-<a routerLink="/panel-administrativo/mis-camaras" class="btn btn-outline-primary">
-  ← Volver a la lista
-</a>
-
+    <a routerLink="/panel-usuario/mis-camaras" class="btn btn-outline-primary">
+      ← Volver a la lista
+    </a>
   </div>
 </div>

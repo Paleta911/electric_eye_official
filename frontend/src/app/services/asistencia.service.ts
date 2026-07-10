@@ -1,21 +1,31 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { API_ENDPOINTS, apiUrl } from '../core/config/api';
+
+export type Asistencia = {
+  _id: string;
+  timestamp: string;
+  camera: string;
+  area: string;
+  frame_id: string;
+  imagenUrl: string | null;
+};
 
 @Injectable({
   providedIn: 'root'
 })
 export class AsistenciaService {
-  private apiUrl = 'http://localhost:3000/asistencias';
+  private readonly apiUrl = API_ENDPOINTS.attendance;
 
   constructor(private http: HttpClient) {}
 
-  getAsistencias(): Observable<any[]> {
-    return this.http.get<any[]>(this.apiUrl);
+  getAsistencias(): Observable<Asistencia[]> {
+    return this.http.get<Asistencia[]>(this.apiUrl);
   }
 
   deleteAsistencia(frameId: string) {
-    return this.http.delete(`http://localhost:3000/imagen/${frameId}`);
+    return this.http.delete(apiUrl(`/imagen/${encodeURIComponent(frameId)}`));
   }
 
 }

@@ -37,6 +37,7 @@ DISPLAY_HEIGHT = 640
 MONGO_URI = os.getenv("MONGO_URI")
 MONGO_DB_NAME = os.getenv("MONGO_DB_NAME", "video_database")
 API_URL = os.getenv("API_URL", "http://localhost:3000/api/rostros")
+AI_INGEST_KEY = os.getenv("AI_INGEST_KEY")
 
 # --- CONFIGURACIÓN DE PARÁMETROS DE LA CÁMARA Y ZONA ---
 CAMERA_NAME = "Camara_Principal"
@@ -131,6 +132,9 @@ registro_personal = {}
 
 def enviar_rostro_api(nombre, puesto, estado, timestamp, frame_id=None):
     """Envía los datos de detección a la API externa."""
+    if not AI_INGEST_KEY:
+        print("⚠ AI_INGEST_KEY no está definida. Registro API omitido.")
+        return
     data = {
         "nombre": nombre,
         "puesto": puesto,
@@ -139,7 +143,13 @@ def enviar_rostro_api(nombre, puesto, estado, timestamp, frame_id=None):
         "frame_id": str(frame_id) if frame_id else None
     }
     try:
-        requests.post(API_URL, json=data, timeout=3)
+        response = requests.post(
+            API_URL,
+            json=data,
+            headers={"X-Ingest-Key": AI_INGEST_KEY},
+            timeout=3
+        )
+        response.raise_for_status()
     except requests.exceptions.RequestException:
         print("❌ Error de conexión con la API (o timeout).")
 

@@ -1,69 +1,79 @@
 const jwt = require('jsonwebtoken');
+const { config } = require('../config');
 const { getDB } = require('../utils/mongo');
 
-const JWT_SECRET = process.env.JWT_SECRET;
+const JWT_OPTIONS = Object.freeze({
+  issuer: 'electric-eye-api',
+  audience: 'electric-eye-web'
+});
 
-if (!JWT_SECRET) {
-  throw new Error('JWT_SECRET no está definida. Crea el archivo .env a partir de .env.example.');
+function signToken(payload, options = {}) {
+  return jwt.sign(payload, config.jwtSecret, {
+    ...JWT_OPTIONS,
+    expiresIn: options.expiresIn || '2h'
+  });
 }
 
-/**
- * Middleware para validar el token y cargar los datos del usuario.
- */
+function verifyToken(token) {
+  return jwt.verify(token, config.jwtSecret, JWT_OPTIONS);
+}
+
+function signImageToken(imageId) {
+  return signToken({ purpose: 'image', resource: imageId }, { expiresIn: '5m' });
+}
+
 async function verificarToken(req, res, next) {
-  const authHeader = req.headers.authorization;
-  if (!authHeader) {
-    return res.status(401).json({ message: 'Token requerido.' });
+  const match = /^Bearer\s+(.+)$/i.exec(req.headers.authorization || '');
+  if (!match) {
+    return res.status(401).json({ message: 'Token de acceso requerido.' });
   }
 
-  const token = authHeader.split(' ')[1];
   try {
-    const decoded = jwt.verify(token, JWT_SECRET);
+    const decoded = verifyToken(match[1]);
+    if (!decoded.email || decoded.purpose === '2fa') {
+      return res.status(401).json({ message: 'Token de acceso inválido o expirado.' });
+    }
 
     const db = getDB();
-    const user = await db.collection('users').findOne({ email: decoded.email });
+    const user = await db.collection('users').findOne(
+      { email: decoded.email },
+      { projection: { email: 1, role: 1, servicioActivo: 1 } }
+    );
 
     if (!user) {
-      return res.status(401).json({ message: 'Usuario no encontrado.' });
+      return res.status(401).json({ message: 'Token de acceso inválido o expirado.' });
     }
 
     req.user = {
       email: user.email,
-      role: user.role,
+      role: user.role || 'user',
       servicioActivo: user.servicioActivo === true
     };
-
-    console.log(`✅ Token verificado para email: ${user.email}`);
-    next();
-  } catch (err) {
-    console.error('❌ Error al verificar token:', err);
-    return res.status(403).json({ message: 'Token inválido o expirado.' });
+    return next();
+  } catch (error) {
+    return res.status(401).json({ message: 'Token de acceso inválido o expirado.' });
   }
 }
 
-/**
- * Middleware para exigir que la cuenta esté activada.
- */
 function requireCuentaActiva(req, res, next) {
-  if (!req.user || !req.user.servicioActivo) {
-    return res.status(403).json({ message: 'Cuenta no activada. Ingresa tu clave de activación.' });
+  if (!req.user?.servicioActivo) {
+    return res.status(403).json({ message: 'La cuenta todavía no está activada.' });
   }
-  next();
+  return next();
 }
 
-/**
- * Middleware para exigir el rol de administrador.
- */
 function requireAdmin(req, res, next) {
-  if (!req.user || req.user.role !== 'admin') {
-    return res.status(403).json({ message: 'Acceso denegado. Rol de administrador requerido.' });
+  if (req.user?.role !== 'admin') {
+    return res.status(403).json({ message: 'Se requiere una cuenta administradora.' });
   }
-  next();
+  return next();
 }
 
 module.exports = {
-  verificarToken,
-  requireCuentaActiva,
   requireAdmin,
-  JWT_SECRET
+  requireCuentaActiva,
+  signImageToken,
+  signToken,
+  verificarToken,
+  verifyToken
 };

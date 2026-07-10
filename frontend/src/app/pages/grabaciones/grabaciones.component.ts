@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 
-import { AsistenciaService } from '../../services/asistencia.service';
+import { Asistencia, AsistenciaService } from '../../services/asistencia.service';
 import { FormsModule } from '@angular/forms';
 
 @Component({
@@ -11,8 +11,10 @@ import { FormsModule } from '@angular/forms';
   styleUrls: ['./grabaciones.component.css']
 })
 export class GrabacionesComponent implements OnInit {
-  asistencias: any[] = [];
+  asistencias: Asistencia[] = [];
   imagenAmpliada: string | null = null;
+  cargando = true;
+  error = '';
 
   // Paginación
   paginaActual: number = 1;
@@ -27,19 +29,19 @@ export class GrabacionesComponent implements OnInit {
     this.recargarAsistencias();
   }
 
-  get asistenciasFiltradas(): any[] {
+  get asistenciasFiltradas(): Asistencia[] {
     const texto = this.filtroTexto.toLowerCase();
     return this.asistencias.filter(item =>
-      item.camera.toLowerCase().includes(texto) ||
-      item.area.toLowerCase().includes(texto)
+      (item.camera || '').toLowerCase().includes(texto) ||
+      (item.area || '').toLowerCase().includes(texto)
     );
   }
 
   get totalPaginas(): number {
-    return Math.ceil(this.asistenciasFiltradas.length / this.registrosPorPagina);
+    return Math.max(1, Math.ceil(this.asistenciasFiltradas.length / this.registrosPorPagina));
   }
 
-  get imagenesPaginadas(): any[] {
+  get imagenesPaginadas(): Asistencia[] {
     const inicio = (this.paginaActual - 1) * this.registrosPorPagina;
     return this.asistenciasFiltradas.slice(inicio, inicio + this.registrosPorPagina);
   }
@@ -61,7 +63,12 @@ export class GrabacionesComponent implements OnInit {
   }
 
   eliminarAsistencia(imagenUrl: string): void {
-    const frameId = imagenUrl.split('/').pop();
+    let frameId: string | undefined;
+    try {
+      frameId = new URL(imagenUrl, window.location.origin).pathname.split('/').pop();
+    } catch {
+      return;
+    }
     if (!frameId) return;
 
     const confirmacion = confirm('¿Estás seguro de que deseas eliminar esta imagen?');
@@ -74,12 +81,18 @@ export class GrabacionesComponent implements OnInit {
   }
 
   recargarAsistencias(): void {
+    this.cargando = true;
+    this.error = '';
     this.asistenciaService.getAsistencias().subscribe({
       next: data => {
         this.asistencias = data;
-        this.paginaActual = 1; // Reinicia a la primera página
+        this.paginaActual = 1;
+        this.cargando = false;
       },
-      error: err => console.error('❌ Error al cargar asistencias:', err)
+      error: () => {
+        this.cargando = false;
+        this.error = 'No se pudieron cargar las grabaciones.';
+      }
     });
   }
 

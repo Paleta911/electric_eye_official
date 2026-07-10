@@ -1,36 +1,39 @@
 const express = require('express');
-const router = express.Router();
 const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
 const { getDB } = require('../utils/mongo');
-const { verificarToken, JWT_SECRET } = require('../middlewares/authMiddleware');
-const { crearClave } = require('../controllers/authController');
+const { requireAdmin, signToken, verificarToken } = require('../middlewares/authMiddleware');
+const { createActivationKey, registerManagedUser } = require('../controllers/authController');
+const {
+  isValidEmail,
+  isValidPhone,
+  normalizeEmail,
+  normalizePhone,
+  passwordValidationMessage
+} = require('../utils/validation');
+
+const router = express.Router();
 
 router.post('/registrar', async (req, res) => {
   try {
-    const { email, phone, password } = req.body;
+    const email = normalizeEmail(req.body.email);
+    const phone = normalizePhone(req.body.phone);
+    const password = req.body.password;
+    const passwordError = passwordValidationMessage(password);
 
-    if (!email || !phone || !password) {
-      return res.status(400).json({ message: 'Email, teléfono y contraseña son obligatorios.' });
+    if (!isValidEmail(email) || !isValidPhone(phone) || passwordError) {
+      return res.status(400).json({ message: passwordError || 'Correo o teléfono inválido.' });
     }
 
     const db = getDB();
-
-    // Verificar duplicados por email o teléfono
-    const existe = await db.collection('users').findOne({
-      $or: [{ email }, { phone }]
-    });
-
-    if (existe) {
-      return res.status(400).json({ message: 'El email o teléfono ya está registrado.' });
+    const existing = await db.collection('users').findOne({ $or: [{ email }, { phone }] });
+    if (existing) {
+      return res.status(409).json({ message: 'El correo o teléfono ya está registrado.' });
     }
-
-    const hashedPassword = await bcrypt.hash(password, 10);
 
     await db.collection('users').insertOne({
       email,
       phone,
-      passwordHash: hashedPassword,
+      passwordHash: await bcrypt.hash(password, 12),
       servicioActivo: false,
       estadoCuenta: 'REGISTRADO',
       claveActivacionUsada: null,
@@ -38,135 +41,84 @@ router.post('/registrar', async (req, res) => {
       createdAt: new Date()
     });
 
-    const token = jwt.sign(
-      { email, role: 'user' },
-      JWT_SECRET,
-      { expiresIn: '2h' }
-    );
-
-    console.log(`🆕 Usuario registrado y logueado automáticamente: ${email}`);
-
-    res.status(201).json({
+    return res.status(201).json({
       message: 'Usuario registrado correctamente.',
-      token,
+      token: signToken({ email, role: 'user' }),
+      role: 'user',
       servicioActivo: false
     });
   } catch (error) {
-    console.error('❌ Error al registrar usuario:', error);
-    res.status(500).json({ message: 'Error al registrar usuario.' });
+    if (error?.code === 11000) {
+      return res.status(409).json({ message: 'El correo o teléfono ya está registrado.' });
+    }
+    console.error('Error interno durante el registro.');
+    return res.status(500).json({ message: 'No se pudo registrar el usuario.' });
   }
 });
 
-//crea la clave de activacion
-router.post('/crear-clave', crearClave);
+router.post('/administrados', verificarToken, requireAdmin, registerManagedUser);
+router.post('/claves-activacion', verificarToken, requireAdmin, createActivationKey);
 
-/**
- * POST /api/usuarios/activar
- * Activar servicio con clave
- */
 router.post('/activar', verificarToken, async (req, res) => {
+  const key = typeof req.body.clave === 'string' ? req.body.clave.trim() : '';
+  if (!/^[A-Za-z0-9_-]{20,64}$/.test(key)) {
+    return res.status(400).json({ message: 'La clave de activación no es válida.' });
+  }
+
+  const db = getDB();
+  if (req.user.servicioActivo) {
+    return res.status(409).json({ message: 'La cuenta ya está activada.' });
+  }
+
   try {
-    const email = req.user.email; // ⚠️ Lo toma del token
-    const { clave } = req.body;
+    const claimedKey = await db.collection('activationkeys').findOneAndUpdate(
+      { clave: key, usada: false },
+      { $set: { usada: true, usadaEn: new Date(), usadaPor: req.user.email } },
+      { returnDocument: 'after' }
+    );
 
-    if (!clave) {
-      return res.status(400).json({ message: 'La clave es requerida.' });
+    if (!claimedKey) {
+      return res.status(400).json({ message: 'La clave es incorrecta o ya fue utilizada.' });
     }
 
-    const db = getDB();
-    const usuario = await db.collection('users').findOne({ email });
-    if (!usuario) {
-      return res.status(404).json({ message: 'Usuario no encontrado.' });
-    }
-
-    if (usuario.servicioActivo) {
-      return res.status(400).json({ message: 'El servicio ya está activado.' });
-    }
-
-    const claveDoc = await db.collection('activationkeys').findOne({ clave });
-    if (!claveDoc) {
-      return res.status(400).json({ message: 'Clave no válida.' });
-    }
-
-    if (claveDoc.usada) {
-      return res.status(400).json({ message: 'La clave ya fue usada.' });
-    }
-
-    // Activar el servicio
-    await db.collection('users').updateOne(
-      { email },
+    const result = await db.collection('users').updateOne(
+      { email: req.user.email, servicioActivo: { $ne: true } },
       {
         $set: {
           servicioActivo: true,
           estadoCuenta: 'ACTIVO',
-          claveActivacionUsada: clave
+          claveActivacionUsada: key,
+          activatedAt: new Date()
         }
       }
     );
 
-    // Marcar la clave como usada
-    await db.collection('activationkeys').updateOne(
-      { clave },
-      { $set: { usada: true } }
-    );
-
-    console.log(`✅ Usuario ${email} activó el servicio con clave ${clave}`);
-    res.status(200).json({ message: 'Servicio activado correctamente.' });
-  } catch (error) {
-    console.error('❌ Error al activar servicio:', error);
-    res.status(500).json({ message: 'Error al activar servicio.' });
-  }
-});
-
-
-
-/**
- * GET /api/usuarios/me
- * Obtener datos del usuario autenticado
- */
-router.get('/me', verificarToken, async (req, res) => {
-  try {
-    const db = getDB();
-    const email = req.user.email;
-
-    const usuario = await db.collection('users').findOne({ email });
-    if (!usuario) {
-      return res.status(404).json({ message: 'Usuario no encontrado.' });
+    if (result.modifiedCount !== 1) {
+      await db.collection('activationkeys').updateOne(
+        { clave: key, usadaPor: req.user.email },
+        { $set: { usada: false }, $unset: { usadaEn: '', usadaPor: '' } }
+      );
+      return res.status(409).json({ message: 'La cuenta ya está activada.' });
     }
 
-    res.json({
-      email: usuario.email,
-      servicioActivo: usuario.servicioActivo,
-      estadoCuenta: usuario.estadoCuenta
-    });
+    return res.json({ message: 'Servicio activado correctamente.' });
   } catch (error) {
-    console.error('❌ Error al obtener datos del usuario:', error);
-    res.status(500).json({ message: 'Error interno del servidor.' });
+    console.error('Error interno durante la activación.');
+    return res.status(500).json({ message: 'No se pudo activar el servicio.' });
   }
 });
 
-/**
- * GET /api/usuarios/verificar-sesion
- * Verificar si la sesión está activa y servicioActivo
- */
-router.get('/verificar-sesion', verificarToken, async (req, res) => {
-  try {
-    const db = getDB();
-    const email = req.user.email;
+router.get('/me', verificarToken, async (req, res) => res.json({
+  email: req.user.email,
+  role: req.user.role,
+  servicioActivo: req.user.servicioActivo,
+  estadoCuenta: req.user.servicioActivo ? 'ACTIVO' : 'REGISTRADO'
+}));
 
-    const usuario = await db.collection('users').findOne({ email });
-    if (!usuario) {
-      return res.status(404).json({ message: 'Usuario no encontrado.' });
-    }
-
-    res.json({
-      email: usuario.email,
-      servicioActivo: usuario.servicioActivo === true
-    });
-  } catch (error) {
-    console.error('❌ Error al verificar sesión:', error);
-    res.status(500).json({ message: 'Error interno del servidor.' });
-  }
-});
+router.get('/verificar-sesion', verificarToken, async (req, res) => res.json({
+  email: req.user.email,
+  role: req.user.role,
+  servicioActivo: req.user.servicioActivo
+}));
 
 module.exports = router;

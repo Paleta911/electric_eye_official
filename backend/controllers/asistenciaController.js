@@ -1,6 +1,6 @@
 const { getDB } = require('../utils/mongo');
-
-const PORT = 3000;
+const { absoluteUrl } = require('../utils/http');
+const { signImageToken } = require('../middlewares/authMiddleware');
 
 async function getAsistencias(req, res) {
   const db = getDB();
@@ -15,7 +15,9 @@ async function getAsistencias(req, res) {
     camera: item.camera_name,
     area: item.area,
     frame_id: item.frame_id,
-    imagenUrl: `http://localhost:${PORT}/imagen/${item.frame_id}`
+    imagenUrl: item.frame_id
+      ? absoluteUrl(req, `/imagen/${item.frame_id}?token=${encodeURIComponent(signImageToken(String(item.frame_id)))}`)
+      : null
   }));
 
   res.json(resultados);

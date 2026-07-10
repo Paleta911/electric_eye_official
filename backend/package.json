@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "create-activation-key": "node scripts/create-activation-key.js",
+    "promote-admin": "node scripts/promote-admin.js",
+    "test": "node --test",
     "start": "node server.js"
   },
   "keywords": [],
@@ -15,6 +17,8 @@
     "cors": "^2.8.5",
     "dotenv": "^17.4.2",
     "express": "^5.1.0",
+    "express-rate-limit": "^8.5.2",
+    "helmet": "^8.2.0",
     "jsonwebtoken": "^9.0.2",
     "mongodb": "^6.21.0",
     "qrcode": "^1.5.4",

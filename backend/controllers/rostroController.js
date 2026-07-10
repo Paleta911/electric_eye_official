@@ -1,4 +1,7 @@
 const { getDB } = require('../utils/mongo');
+const { absoluteUrl } = require('../utils/http');
+const { cleanText, isIsoTimestamp } = require('../utils/validation');
+const { signImageToken } = require('../middlewares/authMiddleware');
 
 /**
  * GET /api/rostros
@@ -17,7 +20,7 @@ async function getRostros(req, res) {
     puesto: item.puesto ?? 'Desconocido',
     estado: item.estado ?? 'Desconocido',
     rostroUrl: item.frame_id
-      ? `http://localhost:3000/imagen/${item.frame_id}`
+      ? absoluteUrl(req, `/imagen/${item.frame_id}?token=${encodeURIComponent(signImageToken(String(item.frame_id)))}`)
       : null
   }));
 
@@ -31,10 +34,14 @@ async function getRostros(req, res) {
 async function registrarRostro(req, res) {
   try {
     const db = getDB();
-    const { nombre, puesto, estado, timestamp, frame_id } = req.body;
+    const nombre = cleanText(req.body.nombre, 80);
+    const puesto = cleanText(req.body.puesto, 80) || 'Desconocido';
+    const estado = cleanText(req.body.estado, 30);
+    const timestamp = req.body.timestamp;
+    const frame_id = req.body.frame_id;
 
-    if (!nombre || !estado || !timestamp) {
-      return res.status(400).json({ message: 'nombre, estado y timestamp son obligatorios.' });
+    if (!nombre || !estado || !isIsoTimestamp(timestamp)) {
+      return res.status(400).json({ message: 'nombre, estado y un timestamp válido son obligatorios.' });
     }
 
     const fechaHoy = timestamp.substring(0, 10); // YYYY-MM-DD
@@ -62,7 +69,7 @@ async function registrarRostro(req, res) {
     // No hay registro: insertar
     const nuevo = {
       nombre,
-      puesto: puesto ?? 'Desconocido',
+      puesto,
       estado,
       timestamp,
       frame_id: frame_id ?? null

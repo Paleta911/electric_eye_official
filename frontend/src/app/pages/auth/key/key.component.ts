@@ -1,174 +1,147 @@
-import { Component } from '@angular/core';
-import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { API_ENDPOINTS } from '../../../core/config/api';
+import { AuthService, UserRole } from '../../../services/auth.service';
+
+type LoginResponse = {
+  token?: string;
+  role?: UserRole;
+  servicioActivo?: boolean;
+  twofa_required?: boolean;
+  tempToken?: string;
+};
 
 @Component({
   selector: 'app-key',
   standalone: true,
-  imports: [CommonModule, FormsModule, HttpClientModule],
+  imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './key.component.html',
   styleUrl: './key.component.css'
 })
-export class KeyComponent {
-  /* ------- Lógica de autenticación ------- */
-  attemptsLeft = 4;
-  showError = false;
-  errorMessage = '';
-  showContactMessage = false;
-  locked = false;
-  mostrarClave = false;
-  animacionError = false;
-  desbloqueado = false;
-
-  identificador: string = '';
-  password: string = '';
-
-  token: string | null = null;
+export class KeyComponent implements OnInit {
+  identificador = '';
+  password = '';
+  tokenInput = '';
   tempToken: string | null = null;
-
-  tokenInput: string = '';
-  show2FA: boolean = false;
-  isVerifying: boolean = false;
-
-  constructor(private router: Router, private http: HttpClient) {}
-
-  /* ------- Íconos animados ------- */
+  show2FA = false;
+  mostrarClave = false;
+  showContactMessage = false;
+  errorMessage = '';
+  cargando = false;
   iconos: IconoAnimado[] = [];
 
+  constructor(
+    private readonly router: Router,
+    private readonly route: ActivatedRoute,
+    private readonly http: HttpClient,
+    private readonly auth: AuthService
+  ) {}
+
   ngOnInit(): void {
-    const clases = [
-      'fa-camera',
-      'fa-eye',
-      'fa-lock',
-      'fa-video',
-      'fa-key',
-      'fa-shield-alt'
-    ];
-    for (let i = 0; i < 40; i++) {
-      this.iconos.push({
-        class: clases[Math.floor(Math.random() * clases.length)],
-        left: Math.random() * 100,
-        duration: 6 + Math.random() * 6,
-        delay: Math.random() * 5,
-        size: 16 + Math.random() * 20
-      });
+    if (this.route.snapshot.queryParamMap.get('sesion') === 'expirada') {
+      this.errorMessage = 'Tu sesión expiró. Inicia sesión nuevamente.';
     }
+    this.iconos = createBackgroundIcons();
   }
 
-  /* ------- Validar credenciales con backend ------- */
   validateCredentialsWithBackend(): void {
-    if (this.locked) return;
-
-    this.showError = false;
+    if (this.cargando) return;
     this.errorMessage = '';
+    this.showContactMessage = false;
 
-    const loginPayload: any = {
-      password: this.password
-    };
-
-    const valor = this.identificador.trim();
-
-    if (valor.includes('@')) {
-      // Es correo electrónico
-      loginPayload.email = valor;
-    } else if (/^\d{7,15}$/.test(valor)) {
-      // Es número de celular
-      loginPayload.phone = valor;
-    } else {
-      this.errorMessage = 'Introduce un correo válido o un número de celular.';
-      this.showError = true;
+    const identifier = this.identificador.trim();
+    const payload: { password: string; email?: string; phone?: string } = { password: this.password };
+    if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(identifier)) payload.email = identifier;
+    else if (/^\d{7,15}$/.test(identifier)) payload.phone = identifier;
+    else {
+      this.errorMessage = 'Introduce un correo válido o un teléfono de 7 a 15 dígitos.';
+      return;
+    }
+    if (!this.password) {
+      this.errorMessage = 'Introduce tu contraseña.';
       return;
     }
 
-    this.http.post<any>('http://localhost:3000/login', loginPayload).subscribe({
-      next: (res) => {
-        if (res.twofa_required) {
-          this.tempToken = res.tempToken;
+    this.cargando = true;
+    this.http.post<LoginResponse>(API_ENDPOINTS.login, payload).subscribe({
+      next: response => {
+        this.cargando = false;
+        if (response.twofa_required && response.tempToken) {
+          this.tempToken = response.tempToken;
           this.show2FA = true;
-        } else {
-          this.token = res.token;
-          localStorage.setItem('auth_token', res.token);
-          localStorage.setItem('user_role', res.role);
-
-          this.desbloqueado = true;
-
-          setTimeout(() => {
-            this.router.navigate(['/panel-usuario']);
-          }, 1200);
-        }
-      },
-      error: err => {
-        this.attemptsLeft--;
-        this.errorMessage = err.error?.message || 'Error de autenticación.';
-        this.showError = true;
-        this.animacionError = true;
-        setTimeout(() => this.animacionError = false, 1000);
-        if (this.attemptsLeft <= 0) {
-          this.locked = true;
-        }
-      }
-    });
-  }
-
-  /* ------- Verificar token 2FA ------- */
-  verify2FA(): void {
-    if (!this.tempToken || !this.tokenInput) return;
-
-    this.isVerifying = true;
-    this.showError = false;
-    this.errorMessage = '';
-
-    this.http.post<any>('http://localhost:3000/2fa/verify', {
-      tempToken: this.tempToken,
-      token: this.tokenInput
-    }).subscribe({
-      next: res => {
-        this.token = res.token;
-
-        if (!res.role) {
-          console.error('❌ El backend no devolvió el rol.');
-          this.isVerifying = false;
-          this.errorMessage = 'Error: el servidor no devolvió el rol.';
-          this.showError = true;
+          this.password = '';
           return;
         }
-
-        localStorage.setItem('auth_token', res.token);
-        localStorage.setItem('user_role', res.role);
-
-        this.desbloqueado = true;
-        this.isVerifying = false;
-
-        setTimeout(() => {
-          this.router.navigate(['/']);
-        }, 1200);
+        this.completeLogin(response);
       },
-      error: err => {
-        this.isVerifying = false;
-        this.errorMessage = err.error?.message || 'Código 2FA incorrecto.';
-        this.showError = true;
-      }
+      error: error => this.handleError(error, 'No se pudo iniciar sesión.')
     });
   }
 
-  /* ------- ¿Olvidó clave? ------- */
-  forgotKey(): void {
-    this.showContactMessage = true;
-    this.showError = false;
+  verify2FA(): void {
+    if (this.cargando || !this.tempToken) return;
+    if (!/^\d{6}$/.test(this.tokenInput.trim())) {
+      this.errorMessage = 'Introduce el código de seis dígitos.';
+      return;
+    }
+
+    this.cargando = true;
+    this.errorMessage = '';
+    this.http.post<LoginResponse>(API_ENDPOINTS.verify2FA, {
+      tempToken: this.tempToken,
+      token: this.tokenInput.trim()
+    }).subscribe({
+      next: response => {
+        this.cargando = false;
+        this.completeLogin(response);
+      },
+      error: error => this.handleError(error, 'No se pudo verificar el código.')
+    });
   }
 
-  irAlInicio() {
-    this.router.navigate(['/']);
+  volverACredenciales(): void {
+    this.show2FA = false;
+    this.tempToken = null;
+    this.tokenInput = '';
+    this.errorMessage = '';
+  }
+
+  forgotKey(): void {
+    this.showContactMessage = true;
+    this.errorMessage = '';
+  }
+
+  private completeLogin(response: LoginResponse): void {
+    if (!response.token || (response.role !== 'user' && response.role !== 'admin')) {
+      this.errorMessage = 'El servidor devolvió una sesión incompleta.';
+      return;
+    }
+    this.auth.guardarSesion(response.token, response.role);
+    if (!response.servicioActivo) {
+      void this.router.navigate(['/activar-servicio']);
+      return;
+    }
+    void this.router.navigate([response.role === 'admin' ? '/panel-admin' : '/panel-usuario']);
+  }
+
+  private handleError(error: HttpErrorResponse, fallback: string): void {
+    this.cargando = false;
+    this.errorMessage = typeof error.error?.message === 'string' ? error.error.message : fallback;
   }
 }
 
-/* ------- Interfaz íconos ------- */
-interface IconoAnimado {
-  class: string;
-  left: number;
-  duration: number;
-  delay: number;
-  size: number;
+interface IconoAnimado { class: string; left: number; duration: number; delay: number; size: number }
+
+function createBackgroundIcons(): IconoAnimado[] {
+  const classes = ['fa-camera', 'fa-eye', 'fa-lock', 'fa-video', 'fa-key', 'fa-shield-alt'];
+  return Array.from({ length: 24 }, (_, index) => ({
+    class: classes[index % classes.length],
+    left: (index * 37) % 100,
+    duration: 9 + (index % 5),
+    delay: -(index % 8),
+    size: 16 + (index % 4) * 4
+  }));
 }

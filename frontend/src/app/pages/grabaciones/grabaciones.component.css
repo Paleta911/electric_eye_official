@@ -33,6 +33,17 @@
   min-height: 0;
 }
 
+.estado-panel {
+  margin: 1rem 1.25rem;
+  padding: 2rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 12px;
+  background: #f8fafc;
+  text-align: center;
+}
+
+.estado-error { color: #991b1b; background: #fef2f2; border-color: #fecaca; }
+
 
 /* ==============================
    ZONA SCROLLEABLE
@@ -176,6 +187,8 @@
   font-size: 28px;
   color: #fff;
   cursor: pointer;
+  background: transparent;
+  border: 0;
 }
 
 

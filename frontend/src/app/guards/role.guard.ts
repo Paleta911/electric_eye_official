@@ -1,39 +1,35 @@
 import { Injectable } from '@angular/core';
-import { CanActivate, Router, ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
+import { CanActivate, Router, RouterStateSnapshot, UrlTree } from '@angular/router';
+import { Observable, of } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
+import { API_ENDPOINTS } from '../core/config/api';
+import { AuthService, UserRole } from '../services/auth.service';
 
-@Injectable({
-  providedIn: 'root'
-})
+type CurrentUser = { role: UserRole; servicioActivo: boolean };
+
+@Injectable({ providedIn: 'root' })
 export class RoleGuard implements CanActivate {
+  constructor(
+    private readonly http: HttpClient,
+    private readonly router: Router,
+    private readonly auth: AuthService
+  ) {}
 
-  constructor(private router: Router) {}
+  canActivate(_route: unknown, state: RouterStateSnapshot): Observable<boolean | UrlTree> {
+    if (!this.auth.estaAutenticado()) return of(this.router.createUrlTree(['/login-clave']));
 
-  canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean {
-    const token = localStorage.getItem('auth_token');
-    const role = localStorage.getItem('user_role');
-    const url = state.url;
-
-    console.log(`🔐 RoleGuard - Token: ${token}, Role: ${role}, URL: ${url}`);
-
-    if (!token) {
-      console.warn('⛔ No hay token, redirigiendo al login');
-      this.router.navigate(['/']);
-      return false;
-    }
-
-    if (url.startsWith('/panel-admin') && role !== 'admin') {
-      console.warn(`⛔ Acceso denegado. Rol: ${role} Ruta: ${url}`);
-      this.router.navigate(['/']);
-      return false;
-    }
-
-    if (url.startsWith('/panel-usuario') && role !== 'user') {
-      console.warn(`⛔ Acceso denegado. Rol: ${role} Ruta: ${url}`);
-      this.router.navigate(['/']);
-      return false;
-    }
-
-    // ✅ Acceso permitido
-    return true;
+    return this.http.get<CurrentUser>(API_ENDPOINTS.currentUser).pipe(
+      map(user => {
+        this.auth.guardarSesion(this.auth.obtenerToken()!, user.role);
+        const expectedRole: UserRole = state.url.startsWith('/panel-admin') ? 'admin' : 'user';
+        if (user.role === expectedRole) return true;
+        return this.router.createUrlTree([user.role === 'admin' ? '/panel-admin' : '/panel-usuario']);
+      }),
+      catchError(() => {
+        this.auth.eliminarSesion();
+        return of(this.router.createUrlTree(['/login-clave']));
+      })
+    );
   }
 }

@@ -1,211 +1,9 @@
-// import { Component } from '@angular/core';
-// import { CommonModule } from '@angular/common';
-// import { FormsModule } from '@angular/forms';
-// import { HttpClient } from '@angular/common/http';
-// import { Router } from '@angular/router';
-
-// @Component({
-//   selector: 'app-activar-servicio',
-//   standalone: true,
-//   templateUrl: './activar-servicio.component.html',
-//   styleUrls: ['./activar-servicio.component.css'], // o .scss si lo prefieres
-//   imports: [CommonModule, FormsModule]
-// })
-// export class ActivarServicioComponent {
-//   clave = '';
-//   mensaje = '';
-//   cargando = false;
-
-//   // Íconos animados
-//   iconos: IconoAnimado[] = [];
-
-//   constructor(
-//     private http: HttpClient,
-//     private router: Router
-//   ) {}
-
-//   ngOnInit(): void {
-//     const clases = [
-//       'fa-camera',
-//       'fa-eye',
-//       'fa-lock',
-//       'fa-video',
-//       'fa-key',
-//       'fa-shield-alt'
-//     ];
-//     for (let i = 0; i < 40; i++) {
-//       this.iconos.push({
-//         class: clases[Math.floor(Math.random() * clases.length)],
-//         left: Math.random() * 100,
-//         duration: 6 + Math.random() * 6,
-//         delay: Math.random() * 5,
-//         size: 16 + Math.random() * 20
-//       });
-//     }
-//   }
-
-//   activar() {
-//     if (!this.clave.trim()) {
-//       this.mensaje = 'Por favor ingresa tu clave de activación.';
-//       return;
-//     }
-
-//     this.mensaje = '';
-//     this.cargando = true;
-
-//     this.http.post<any>('http://localhost:3000/api/usuarios/activar', {
-//       username: this.obtenerUsuario(),
-//       clave: this.clave.trim()
-//     }).subscribe({
-//       next: res => {
-//         this.mensaje = '✅ Servicio activado correctamente. Redirigiendo...';
-//         setTimeout(() => {
-//           this.router.navigate(['/panel-usuario']);
-//         }, 1500);
-//       },
-//       error: err => {
-//         console.error(err);
-//         this.mensaje = err.error?.message || '❌ Error al activar el servicio.';
-//       }
-//     }).add(() => {
-//       this.cargando = false;
-//     });
-//   }
-
-//   obtenerUsuario(): string {
-//     const token = localStorage.getItem('auth_token');
-//     if (!token) return '';
-//     const payload = JSON.parse(atob(token.split('.')[1]));
-//     return payload.username;
-//   }
-
-//   irAlInicio() {
-//   this.router.navigate(['/']);
-// }
-
-// }
-
-// /* ------- Interfaz íconos ------- */
-// interface IconoAnimado {
-//   class: string;
-//   left: number;
-//   duration: number;
-//   delay: number;
-//   size: number;
-// }
-
-
-
-// import { Component } from '@angular/core';
-// import { CommonModule } from '@angular/common';
-// import { FormsModule } from '@angular/forms';
-// import { HttpClient, HttpHeaders } from '@angular/common/http';
-// import { Router } from '@angular/router';
-// import { AuthService } from '../../services/auth.service';
-
-// @Component({
-//   selector: 'app-activar-servicio',
-//   standalone: true,
-//   templateUrl: './activar-servicio.component.html',
-//   styleUrls: ['./activar-servicio.component.css'],
-//   imports: [CommonModule, FormsModule]
-// })
-// export class ActivarServicioComponent {
-//   clave = '';
-//   mensaje = '';
-//   cargando = false;
-
-//   // Íconos animados
-//   iconos: IconoAnimado[] = [];
-
-//   constructor(
-//     private http: HttpClient,
-//     private router: Router,
-//     private authService: AuthService
-//   ) {}
-
-//   ngOnInit(): void {
-//     const clases = [
-//       'fa-camera',
-//       'fa-eye',
-//       'fa-lock',
-//       'fa-video',
-//       'fa-key',
-//       'fa-shield-alt'
-//     ];
-//     for (let i = 0; i < 40; i++) {
-//       this.iconos.push({
-//         class: clases[Math.floor(Math.random() * clases.length)],
-//         left: Math.random() * 100,
-//         duration: 6 + Math.random() * 6,
-//         delay: Math.random() * 5,
-//         size: 16 + Math.random() * 20
-//       });
-//     }
-//   }
-
-//   activar() {
-//     if (!this.clave.trim()) {
-//       this.mensaje = 'Por favor ingresa tu clave de activación.';
-//       return;
-//     }
-
-//     this.mensaje = '';
-//     this.cargando = true;
-
-//     const token = this.authService.obtenerToken();
-//     if (!token) {
-//       this.mensaje = 'Sesión no válida. Por favor inicia sesión de nuevo.';
-//       this.cargando = false;
-//       return;
-//     }
-
-//     const headers = new HttpHeaders({
-//       Authorization: `Bearer ${token}`
-//     });
-
-//     this.http.post<any>(
-//       'http://localhost:3000/api/usuarios/activar',
-//       { clave: this.clave.trim() },
-//       { headers }
-//     )
-//     .subscribe({
-//       next: res => {
-//         this.mensaje = '✅ Servicio activado correctamente. Redirigiendo...';
-//         setTimeout(() => {
-//           this.router.navigate(['/panel-usuario']);
-//         }, 1500);
-//       },
-//       error: err => {
-//         console.error(err);
-//         this.mensaje = err.error?.message || '❌ Error al activar el servicio.';
-//       }
-//     })
-//     .add(() => {
-//       this.cargando = false;
-//     });
-//   }
-
-//   irAlInicio() {
-//     this.router.navigate(['/']);
-//   }
-// }
-
-// /* ------- Interfaz íconos ------- */
-// interface IconoAnimado {
-//   class: string;
-//   left: number;
-//   duration: number;
-//   delay: number;
-//   size: number;
-// }
-
-
-import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
+import { API_ENDPOINTS } from '../../core/config/api';
 import { AuthService } from '../../services/auth.service';
 
 @Component({
@@ -213,95 +11,67 @@ import { AuthService } from '../../services/auth.service';
   standalone: true,
   templateUrl: './activar-servicio.component.html',
   styleUrls: ['./activar-servicio.component.css'],
-  imports: [CommonModule, FormsModule]
+  imports: [CommonModule, FormsModule, RouterModule]
 })
-export class ActivarServicioComponent {
+export class ActivarServicioComponent implements OnInit {
   clave = '';
   mensaje = '';
+  aviso = '';
   cargando = false;
-
+  exito = false;
   iconos: IconoAnimado[] = [];
 
   constructor(
-    private http: HttpClient,
-    private router: Router,
-    private authService: AuthService
-  ) {}
+    private readonly http: HttpClient,
+    private readonly router: Router,
+    private readonly auth: AuthService
+  ) {
+    this.aviso = history.state?.notice || 'La clave es proporcionada por un administrador del sistema.';
+  }
 
   ngOnInit(): void {
-    const clases = [
-      'fa-camera',
-      'fa-eye',
-      'fa-lock',
-      'fa-video',
-      'fa-key',
-      'fa-shield-alt'
-    ];
-
-    for (let i = 0; i < 40; i++) {
-      this.iconos.push({
-        class: clases[Math.floor(Math.random() * clases.length)],
-        left: Math.random() * 100,
-        duration: 6 + Math.random() * 6,
-        delay: Math.random() * 5,
-        size: 16 + Math.random() * 20
-      });
-    }
+    this.iconos = createBackgroundIcons();
+    if (!this.auth.estaAutenticado()) void this.router.navigate(['/login-clave']);
   }
 
   activar(): void {
-    if (!this.clave.trim()) {
-      this.mensaje = 'Por favor ingresa tu clave de activación.';
+    const key = this.clave.trim();
+    if (this.cargando) return;
+    if (!/^[A-Za-z0-9_-]{20,64}$/.test(key)) {
+      this.mensaje = 'Introduce una clave de activación válida.';
       return;
     }
 
-    this.mensaje = '';
     this.cargando = true;
-
-    const token = this.authService.obtenerToken();
-    if (!token) {
-      this.mensaje = 'Sesión no válida. Por favor inicia sesión de nuevo.';
-      this.cargando = false;
-      return;
-    }
-
-    const headers = new HttpHeaders({
-      Authorization: `Bearer ${token}`
-    });
-
-    this.http
-      .post<any>(
-        'http://localhost:3000/api/usuarios/activar',
-        { clave: this.clave.trim() },
-        { headers }
-      )
-      .subscribe({
-        next: (res) => {
-          this.mensaje = '✅ Servicio activado correctamente. Redirigiendo...';
-          setTimeout(() => {
-            this.router.navigate(['/panel-usuario']);
-          }, 1500);
-        },
-        error: (err) => {
-          console.error('❌ Error al activar el servicio:', err);
-          this.mensaje = err.error?.message || '❌ Error al activar el servicio.';
-        }
-      })
-      .add(() => {
+    this.mensaje = '';
+    this.http.post<{ message: string }>(API_ENDPOINTS.activateAccount, { clave: key }).subscribe({
+      next: response => {
         this.cargando = false;
-      });
+        this.exito = true;
+        this.mensaje = response.message;
+        void this.router.navigate(['/panel-usuario']);
+      },
+      error: error => this.handleError(error)
+    });
   }
 
-  irAlInicio(): void {
-    this.router.navigate(['/']);
+  cerrarSesion(): void {
+    this.auth.eliminarSesion();
+    void this.router.navigate(['/']);
+  }
+
+  private handleError(error: HttpErrorResponse): void {
+    this.cargando = false;
+    this.exito = false;
+    this.mensaje = typeof error.error?.message === 'string' ? error.error.message : 'No se pudo activar el servicio.';
   }
 }
 
-/* ------- Interfaz íconos ------- */
-interface IconoAnimado {
-  class: string;
-  left: number;
-  duration: number;
-  delay: number;
-  size: number;
+interface IconoAnimado { class: string; left: number; duration: number; delay: number; size: number }
+function createBackgroundIcons(): IconoAnimado[] {
+  const classes = ['fa-camera', 'fa-eye', 'fa-lock', 'fa-video', 'fa-key', 'fa-shield-alt'];
+  return Array.from({ length: 24 }, (_, index) => ({
+    class: classes[index % classes.length], left: (index * 37) % 100,
+    duration: 9 + (index % 5), delay: -(index % 8), size: 16 + (index % 4) * 4
+  }));
 }

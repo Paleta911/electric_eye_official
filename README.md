@@ -154,7 +154,7 @@ La configuración privada se carga desde un archivo `.env` local. Este archivo e
 Copy-Item .env.example .env
 ```
 
-2. Genera valores aleatorios distintos para `JWT_SECRET` y `ADMIN_ACCESS_KEY`. Puedes ejecutar este bloque dos veces y copiar cada resultado en la variable correspondiente:
+2. Genera valores aleatorios distintos para `JWT_SECRET` y `AI_INGEST_KEY`. Puedes ejecutar este bloque dos veces y copiar cada resultado en la variable correspondiente:
 
 ```powershell
 $bytes = New-Object byte[] 48
@@ -162,7 +162,9 @@ $bytes = New-Object byte[] 48
 [Convert]::ToBase64String($bytes)
 ```
 
-3. Edita `.env` y configura, como mínimo, `MONGO_URI`, `JWT_SECRET` y `ADMIN_ACCESS_KEY`. Si la URI de MongoDB incluye usuario y contraseña, esos datos deben existir únicamente en `.env` o en el gestor de secretos del entorno de despliegue.
+3. Edita `.env` y configura, como mínimo, `MONGO_URI`, `JWT_SECRET` y `AI_INGEST_KEY`. Configura también `CAMERA_RTSP_URL` si utilizarás snapshots de una cámara IP. Si una URI incluye usuario y contraseña, esos datos deben existir únicamente en `.env` o en el gestor de secretos del entorno de despliegue.
+
+`FRONTEND_ORIGINS` contiene la lista separada por comas de orígenes autorizados por CORS. `HOST` queda en `127.0.0.1` para desarrollo local; en un contenedor puede establecerse explícitamente en `0.0.0.0` y protegerse mediante firewall y proxy inverso.
 
 La plantilla [`.env.example`](.env.example) solo contiene ejemplos y marcadores sin credenciales reales. Para producción se debe usar el gestor de secretos de la plataforma; no se debe copiar el `.env` local al servidor ni incorporarlo a una imagen de contenedor.
 
@@ -185,6 +187,14 @@ npm ci
 npm start
 ```
 
+4. Comprueba su estado:
+
+```powershell
+Invoke-RestMethod http://localhost:3000/health
+```
+
+El resultado esperado es `status: ok` y `database: true`.
+
 ### 5.2. Ejecución del FRONTEND
 
 1. Navega a la carpeta `/frontend`
@@ -206,7 +216,15 @@ npm start
 
 ```bash
 npm run build
-npm test -- --watch=false --browsers=ChromeHeadless
+npm test -- --watch=false --browsers=ChromeHeadless --reporters=progress
+```
+
+5. Valida también el backend:
+
+```bash
+cd backend
+npm test
+npm audit --omit=dev
 ```
 
 ### 5.3. Ejecución de la IA
@@ -231,11 +249,38 @@ python Main.py
 
 ### Lógica de Negocio - Clave de Activación
 
-La lógica de negocio de Electric Eye establece que cuando un usuario se registra, inmediatamente se le solicita su **clave de acceso**, la cual solamente puede ser proporcionada por un administrador. Para obtenerla, debe ir a la colección `activationkeys` y usar la nueva clave de activación creada automáticamente después de registrar al usuario.
+Después del registro, el usuario debe solicitar una **clave de activación de un solo uso** al operador del sistema. El frontend nunca crea ni muestra claves automáticamente.
+
+El operador genera una clave desde un entorno con acceso autorizado a MongoDB:
+
+```bash
+cd backend
+npm run create-activation-key
+```
+
+La clave se muestra una sola vez en la terminal. Debe enviarse al usuario por un canal privado y no debe guardarse en Git, documentación o capturas públicas. La API también permite crear claves mediante `POST /api/usuarios/claves-activacion`, pero exige una sesión con rol `admin`.
+
+Para convertir una cuenta ya registrada en la primera cuenta administradora, el operador puede ejecutar localmente:
+
+```bash
+cd backend
+npm run promote-admin -- administrador@ejemplo.com
+```
+
+No existe registro público de administradores ni selección de rol desde el cliente.
+
+### Seguridad de integraciones
+
+- `Main.py` debe enviar `AI_INGEST_KEY` en la cabecera `X-Ingest-Key` para registrar detecciones.
+- Los snapshots requieren una sesión activa y usan `CAMERA_RTSP_URL`; no hay credenciales de cámara en el código.
+- Las fotografías biométricas se entregan mediante enlaces firmados que expiran en cinco minutos.
+- Login, 2FA, registro y activación tienen límites de solicitudes.
+- La creación de usuarios administrados y claves requiere rol de administrador.
+- Los secretos reales pertenecen únicamente a `.env` o al gestor de secretos del despliegue.
 
 ### Autenticación de Dos Factores (2FA)
 
-Se requiere **conexión a internet** para usar la autenticación de dos factores (2FA).
+La autenticación TOTP no necesita conexión continua a internet, pero el reloj del servidor y del teléfono debe estar correctamente sincronizado.
 
 ### Configuración del Dataset para Entrenamiento
 

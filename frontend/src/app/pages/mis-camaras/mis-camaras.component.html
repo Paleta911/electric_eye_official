@@ -61,10 +61,10 @@
                 <div class="spinner-border text-primary" role="status"></div>
               </div>
             }
-            @if (!imagenError[cam.id]) {
+            @if (snapshotUrls[cam.id] && !imagenError[cam.id]) {
               <img
-                [src]="getSnapshotUrl(cam.id)"
-                alt="Vista previa cámara"
+                [src]="snapshotUrls[cam.id]"
+                [alt]="'Vista previa de la cámara ' + cam.id + ' en ' + cam.ubicacion"
                 class="w-100 h-100 object-fit-cover"
                 (load)="imagenCargando[cam.id] = false"
                 (error)="imagenCargando[cam.id] = false; imagenError[cam.id] = true"
@@ -75,7 +75,12 @@
                 class="d-flex justify-content-center align-items-center bg-secondary text-white"
                 style="height: 100%; width: 100%; font-size: 14px;"
                 >
-                ❌ Sin vista previa
+                <div class="text-center p-3">
+                  <p class="mb-2">Sin vista previa</p>
+                  @if (cam.estado === 'enLinea') {
+                    <button type="button" class="btn btn-sm btn-light" (click)="$event.stopPropagation(); cargarVistaPrevia(cam.id)">Reintentar</button>
+                  }
+                </div>
               </div>
             }
           </div>

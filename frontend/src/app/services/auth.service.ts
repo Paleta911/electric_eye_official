@@ -1,43 +1,40 @@
-
-
 import { Injectable } from '@angular/core';
 
-@Injectable({
-  providedIn: 'root' // Esto hace que Angular pueda inyectarlo globalmente
-})
+export type UserRole = 'user' | 'admin';
+
+@Injectable({ providedIn: 'root' })
 export class AuthService {
-  private readonly tokenKey = 'auth_token'; // Nombre clave en localStorage
+  private readonly tokenKey = 'auth_token';
+  private readonly roleKey = 'user_role';
 
-  constructor() {}
+  guardarSesion(token: string, role: UserRole): void {
+    localStorage.setItem(this.tokenKey, token);
+    localStorage.setItem(this.roleKey, role);
+  }
 
-  /**
-   * Guarda el token JWT en el localStorage
-   * @param token El token JWT
-   */
   guardarToken(token: string): void {
     localStorage.setItem(this.tokenKey, token);
   }
 
-  /**
-   * Recupera el token guardado en localStorage
-   * @returns El token o null si no existe
-   */
   obtenerToken(): string | null {
     return localStorage.getItem(this.tokenKey);
   }
 
-  /**
-   * Elimina el token del localStorage (logout)
-   */
-  eliminarToken(): void {
-    localStorage.removeItem(this.tokenKey);
+  obtenerRol(): UserRole | null {
+    const role = localStorage.getItem(this.roleKey);
+    return role === 'admin' || role === 'user' ? role : null;
   }
 
-  /**
-   * Verifica si hay un token presente (sesión activa)
-   * @returns true si está autenticado
-   */
+  eliminarToken(): void {
+    this.eliminarSesion();
+  }
+
+  eliminarSesion(): void {
+    localStorage.removeItem(this.tokenKey);
+    localStorage.removeItem(this.roleKey);
+  }
+
   estaAutenticado(): boolean {
-    return !!this.obtenerToken();
+    return Boolean(this.obtenerToken());
   }
 }

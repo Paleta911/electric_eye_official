@@ -1,8 +1,7 @@
-import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { RostrosService } from '../../services/rostros.service';
-
+import { Rostro, RostrosService } from '../../services/rostros.service';
 
 @Component({
   selector: 'app-lista-asistencia',
@@ -12,86 +11,50 @@ import { RostrosService } from '../../services/rostros.service';
   styleUrls: ['./lista-asistencia.component.css']
 })
 export class ListaAsistenciaComponent implements OnInit {
-  rostros: any[] = [];
-  mostrarErrorConexion = false;
+  rostros: Rostro[] = [];
+  cargando = true;
+  error = '';
   imagenAmpliada: string | null = null;
+  filtroBusqueda = '';
+  filtroEstado = '';
+  filtroFecha = '';
+  paginaActual = 1;
+  registrosPorPagina = 5;
 
-  // Filtros
-  filtroBusqueda: string = '';
-  filtroEstado: string = '';
-  filtroFecha: string = '';
+  constructor(private readonly rostrosService: RostrosService) {}
 
-  // Paginación
-  paginaActual: number = 1;
-  registrosPorPagina: number = 5;
+  ngOnInit(): void { this.cargar(); }
 
-  constructor(private rostrosService: RostrosService) {}
-
-  ngOnInit(): void {
+  cargar(): void {
+    this.cargando = true;
+    this.error = '';
     this.rostrosService.getRostros().subscribe({
-      next: data => {
-        this.rostros = data;
-        this.mostrarErrorConexion = data.length === 0;
-        this.paginaActual = 1;
-      },
-      error: err => {
-        console.error('❌ Error al cargar rostros:', err);
-        this.mostrarErrorConexion = true;
-      }
+      next: data => { this.rostros = data; this.paginaActual = 1; this.cargando = false; },
+      error: () => { this.error = 'No se pudieron cargar los registros. Comprueba la conexión e inténtalo de nuevo.'; this.cargando = false; }
     });
   }
 
-  get totalAsistencias(): number {
-    return this.rostros.length;
+  get totalAsistencias(): number { return this.rostros.length; }
+  get presentes(): number { return this.rostros.filter(item => item.estado === 'Presente').length; }
+  get ausentes(): number { return this.rostros.filter(item => item.estado === 'Ausente').length; }
+  ampliarImagen(url: string | null): void { if (url) this.imagenAmpliada = url; }
+  cerrarModal(): void { this.imagenAmpliada = null; }
+
+  get rostrosFiltrados(): Rostro[] {
+    const search = this.filtroBusqueda.toLowerCase();
+    return this.rostros.filter(rostro =>
+      (!search || rostro.nombre.toLowerCase().includes(search) || rostro.puesto.toLowerCase().includes(search))
+      && (!this.filtroEstado || rostro.estado === this.filtroEstado)
+      && (!this.filtroFecha || rostro.timestamp.startsWith(this.filtroFecha))
+    );
   }
 
-  get presentes(): number {
-    return this.rostros.filter(r => r.estado === 'Presente').length;
+  get totalPaginas(): number { return Math.max(1, Math.ceil(this.rostrosFiltrados.length / this.registrosPorPagina)); }
+  get paginaDatos(): Rostro[] {
+    const start = (this.paginaActual - 1) * this.registrosPorPagina;
+    return this.rostrosFiltrados.slice(start, start + this.registrosPorPagina);
   }
-
-  get ausentes(): number {
-    return this.rostros.filter(r => r.estado === 'Ausente').length;
-  }
-
-  ampliarImagen(url: string): void {
-    this.imagenAmpliada = url;
-  }
-
-  cerrarModal(): void {
-    this.imagenAmpliada = null;
-  }
-
-  // Filtros aplicados
-  get rostrosFiltrados() {
-    return this.rostros.filter(rostro => {
-      const coincideTexto =
-        !this.filtroBusqueda ||
-        rostro.nombre.toLowerCase().includes(this.filtroBusqueda.toLowerCase()) ||
-        rostro.puesto.toLowerCase().includes(this.filtroBusqueda.toLowerCase());
-
-      const coincideEstado =
-        !this.filtroEstado || rostro.estado === this.filtroEstado;
-
-      const coincideFecha =
-        !this.filtroFecha || rostro.timestamp.startsWith(this.filtroFecha);
-
-      return coincideTexto && coincideEstado && coincideFecha;
-    });
-  }
-
-  get totalPaginas(): number {
-    return Math.ceil(this.rostrosFiltrados.length / this.registrosPorPagina);
-  }
-
-  get paginaDatos() {
-    const inicio = (this.paginaActual - 1) * this.registrosPorPagina;
-    return this.rostrosFiltrados.slice(inicio, inicio + this.registrosPorPagina);
-  }
-
-  cambiarPagina(delta: number) {
-    const nueva = this.paginaActual + delta;
-    if (nueva >= 1 && nueva <= this.totalPaginas) {
-      this.paginaActual = nueva;
-    }
+  cambiarPagina(delta: number): void {
+    this.paginaActual = Math.min(this.totalPaginas, Math.max(1, this.paginaActual + delta));
   }
 }

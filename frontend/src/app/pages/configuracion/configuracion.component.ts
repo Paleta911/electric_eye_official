@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
+import { API_ENDPOINTS } from '../../core/config/api';
 
 @Component({
   selector: 'app-configuracion',
@@ -24,19 +25,10 @@ export class ConfiguracionComponent implements OnInit {
     this.verEstado2FA();
   }
 
-  private obtenerHeaders(): HttpHeaders {
-    const token = localStorage.getItem('auth_token');
-    return new HttpHeaders({
-      Authorization: `Bearer ${token}`
-    });
-  }
-
   verEstado2FA(): void {
     this.cargando = true;
     this.error = '';
-    this.http.get<{ enabled: boolean }>('http://localhost:3000/2fa/status', {
-      headers: this.obtenerHeaders()
-    }).subscribe({
+    this.http.get<{ enabled: boolean }>(API_ENDPOINTS.twoFactorStatus).subscribe({
       next: res => {
         this.estado2FA = res.enabled;
         this.cargando = false;
@@ -52,9 +44,7 @@ export class ConfiguracionComponent implements OnInit {
     this.error = '';
     this.codigoVerificacion = '';
     this.qrImage = null;
-    this.http.post<{ qr: string }>('http://localhost:3000/2fa/activate', {}, {
-      headers: this.obtenerHeaders()
-    }).subscribe({
+    this.http.post<{ qr: string }>(API_ENDPOINTS.twoFactorActivate, {}).subscribe({
       next: res => {
         this.qrImage = res.qr;
         this.estado2FA = false; // Aún no confirmado
@@ -74,11 +64,8 @@ export class ConfiguracionComponent implements OnInit {
     this.isVerifying = true;
     this.error = '';
 
-    // ✅ Aquí la diferencia clave: /2fa/confirm
-    this.http.post('http://localhost:3000/2fa/confirm', {
+    this.http.post(API_ENDPOINTS.twoFactorConfirm, {
       token: this.codigoVerificacion
-    }, {
-      headers: this.obtenerHeaders()
     }).subscribe({
       next: () => {
         this.estado2FA = true;
@@ -95,9 +82,7 @@ export class ConfiguracionComponent implements OnInit {
 
   desactivar2FA(): void {
     this.error = '';
-    this.http.post('http://localhost:3000/2fa/deactivate', {}, {
-      headers: this.obtenerHeaders()
-    }).subscribe({
+    this.http.post(API_ENDPOINTS.twoFactorDeactivate, {}).subscribe({
       next: () => {
         this.qrImage = null;
         this.estado2FA = false;
